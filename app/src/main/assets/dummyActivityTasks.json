@@ -1,0 +1,28 @@
+[
+  {
+    "value": 0,
+    "targetValue": 100,
+    "activityClassCode": -1
+  },
+  {
+    "value": 0,
+    "targetValue": 100,
+    "activityClassCode": 0
+  },
+  {
+    "value": 0,
+    "targetValue": 200,
+    "activityClassCode": 1
+  }
+,
+  {
+    "value": 0,
+    "targetValue": 300,
+    "activityClassCode": 2
+  },
+  {
+    "value": 0,
+    "targetValue": 50,
+    "activityClassCode": 3
+  }
+]

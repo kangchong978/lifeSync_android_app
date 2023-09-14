@@ -9,4 +9,11 @@
 
     <string name="hello_first_fragment">Shake to start calculate steps test</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="welcome">Welcome,</string>
+    <string name="sophia_muller">Sophia Muller 🥰</string>
+    <string name="dash">-</string>
+    <string name="daily_tasks">Daily Tasks</string>
+    <string name="my_activity">My Activity</string>
+    <string name="menu">Menu</string>
+    <string name="add_activity">Add activity</string>
 </resources>

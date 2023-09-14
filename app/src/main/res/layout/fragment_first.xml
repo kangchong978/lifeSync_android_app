@@ -1,21 +1,214 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".FirstFragment">
 
-    <TextView
-        android:id="@+id/textview_first"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/hello_first_fragment"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            tools:layout_editor_absoluteX="1dp"
+            tools:layout_editor_absoluteY="1dp">
+
+            <ImageButton
+                android:id="@+id/imageButton2"
+                android:layout_width="48dp"
+                android:layout_height="40dp"
+                android:layout_margin="20dp"
+                android:background="@drawable/home_menu_button"
+                android:src="@drawable/round_menu_24"
+                android:contentDescription="@string/menu" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/greetingTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/welcome"
+                    android:textColor="#BDBDBD"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/greetingUsernameTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-black"
+                    android:text="@string/sophia_muller"
+                    android:textColor="#7f4f24"
+                    android:textSize="24sp" />
+
+
+            </LinearLayout>
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="40dp" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="20dp"
+                android:background="@drawable/progress_percentage_background"
+                >
+
+
+                <TextView
+                    android:id="@+id/progressPercentage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:fontFamily="sans-serif-black"
+                    android:text="@string/dash"
+                    android:textColor="#646464"
+                    android:textSize="26sp"
+                    android:height="34dp"/>
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/progress_circular_small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:progress="80"
+                    app:indicatorColor="#646464"
+                    app:indicatorSize="130dp"
+                    app:trackColor="#D9D9D9"
+                    app:trackCornerRadius="20dp"
+                    app:trackThickness="20dp" />
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/progress_circular_middle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:progress="40"
+                    app:indicatorColor="#646464"
+                    app:indicatorSize="185dp"
+                    app:trackColor="#D9D9D9"
+                    app:trackCornerRadius="20dp"
+                    app:trackThickness="20dp" />
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/progress_circular_big"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:progress="30"
+                    app:indicatorColor="#646464"
+                    app:indicatorSize="240dp"
+                    app:trackColor="#D9D9D9"
+                    app:trackCornerRadius="20dp"
+                    app:trackThickness="20dp" />
+            </FrameLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="5dp"
+                android:gravity="center"
+                android:paddingBottom="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-black"
+                    android:text="@string/daily_tasks"
+                    android:textColor="#646464"
+                    android:textSize="18sp"
+                    tools:ignore="RelativeOverlap" />
+
+                <ImageButton
+                    android:id="@+id/createActivityImageButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:background="@drawable/home_create_activity_button"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="1dp"
+                    android:src="@drawable/round_add_24"
+                    android:contentDescription="@string/add_activity" />
+            </RelativeLayout>
+
+            <HorizontalScrollView
+                android:id="@+id/dailyActivityHorizontalScrollView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+
+                >
+
+                <LinearLayout
+                    android:id="@+id/dailyActivityLinearLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="100dp"
+                    android:layout_marginBottom="18dp"
+                    android:orientation="horizontal" />
+            </HorizontalScrollView>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="5dp"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-black"
+                    android:text="@string/my_activity"
+                    android:textColor="#646464"
+                    android:textSize="18sp"
+                    tools:ignore="RelativeOverlap" />
+
+                <Spinner
+                    android:id="@+id/activity_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="10dp"
+                    android:background="@drawable/bg_spinner" />
+
+            </RelativeLayout>
+
+
+            <HorizontalScrollView
+                android:id="@+id/dailyActivityHorizontalScrollView1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                >
+
+                <LinearLayout
+                    android:id="@+id/dailyActivityLinearLayout2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="18dp"
+                    android:orientation="horizontal"
+                    >
+
+                    <com.example.lifesync.LineGraphView
+                        android:id="@+id/graphView"
+                        android:layout_width="400dp"
+                        android:layout_height="200dp"
+                        android:layout_margin="20dp" />
+                </LinearLayout>
+            </HorizontalScrollView>
+
+
+        </LinearLayout>
+
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
