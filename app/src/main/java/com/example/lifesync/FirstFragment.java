@@ -581,7 +581,7 @@ public class FirstFragment extends Fragment {
             float requiredWidth = totalDataPoints * dpToPx(dpSpacesBetweenPoints); // Adjusted spacing (40dp between data points)
 
             // Set the width of the LineGraphView to the calculated width, ensuring it's wide enough
-            if (graphView.getLayoutParams() != null) {
+            if (graphView.getLayoutParams() != null && totalDataPoints > 0) {
                 graphView.getLayoutParams().width = (int) requiredWidth;
                 graphView.requestLayout(); // Request layout update to reflect the new width
             }
