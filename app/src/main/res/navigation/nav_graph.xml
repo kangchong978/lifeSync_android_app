@@ -9,20 +9,39 @@
         android:id="@+id/FirstFragment"
         android:name="com.example.lifesync.FirstFragment"
         android:label="@string/first_fragment_label"
-        tools:layout="@layout/fragment_first" >
+        tools:layout="@layout/fragment_first">
 
-<!--        <action-->
-<!--            android:id="@+id/action_FirstFragment_to_SecondFragment"-->
-<!--            app:destination="@id/SecondFragment" />-->
+        <!--        <action-->
+        <!--            android:id="@+id/action_FirstFragment_to_SecondFragment"-->
+        <!--            app:destination="@id/SecondFragment" />-->
+
+        <!--                <action-->
+        <!--                    android:id="@+id/action_FirstFragment_to_SecondFragment"-->
+        <!--                    app:destination="@id/OnBoarding" />-->
     </fragment>
-<!--    <fragment-->
-<!--        android:id="@+id/SecondFragment"-->
-<!--        android:name="com.example.lifesync.SecondFragment"-->
-<!--        android:label="@string/second_fragment_label"-->
-<!--        tools:layout="@layout/fragment_second" >-->
 
-<!--        <action-->
-<!--            android:id="@+id/action_SecondFragment_to_FirstFragment"-->
-<!--            app:destination="@id/FirstFragment" />-->
-<!--    </fragment>-->
+    <fragment
+        android:id="@+id/OnBoardingFragment"
+        android:name="com.example.lifesync.onboarding"
+        android:label="OnBoarding Fragment"
+        tools:layout="@layout/fragment_onboarding">
+
+        <action
+            android:id="@+id/action_FirstFragment_to_SecondFragment"
+            app:destination="@id/FirstFragment" />
+
+        <!--        <action-->
+        <!--            android:id="@+id/action_FirstFragment_to_SecondFragment"-->
+        <!--            app:destination="@id/SecondFragment" />-->
+    </fragment>
+    <!--    <fragment-->
+    <!--        android:id="@+id/SecondFragment"-->
+    <!--        android:name="com.example.lifesync.SecondFragment"-->
+    <!--        android:label="@string/second_fragment_label"-->
+    <!--        tools:layout="@layout/fragment_second" >-->
+
+    <!--        <action-->
+    <!--            android:id="@+id/action_SecondFragment_to_FirstFragment"-->
+    <!--            app:destination="@id/FirstFragment" />-->
+    <!--    </fragment>-->
 </navigation>
