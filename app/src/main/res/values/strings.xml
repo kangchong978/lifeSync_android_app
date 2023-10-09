@@ -16,4 +16,17 @@
     <string name="my_activity">My Activity</string>
     <string name="menu">Menu</string>
     <string name="add_activity">Add activity</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="welcome_to_lifesync">Welcome to lifeSync .</string>
+    <string name="what_s_your_height">What`s your height ?</string>
+    <string name="what_s_your_weight">What`s your weight ?</string>
+    <string name="what_s_your_age">What`s your age ?</string>
+    <string name="hurray">HURRAY ! 🎉</string>
+    <string name="let_s_get_you_settled_in">Let`s get you settled in !</string>
+    <string name="type_your_name_here">Type your name here …</string>
+    <string name="type_your_height_here">Type your height here …</string>
+    <string name="type_your_weight_here">Type your weight here …</string>
+    <string name="sync_your_life_let_s_begin">Sync Your Life: Let\'s Begin !</string>
+    <string name="type_your_age_here">Type your age here …</string>
+    <string name="what_s_your_name">What`s your name ?</string>
 </resources>

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".onboarding">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        tools:ignore="UselessParent">
+
+        <TextView
+            android:id="@+id/onboarding_welcome_title_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
+            android:text="@string/welcome_to_lifesync"
+            android:textSize="30sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/onboarding_name_title_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
+            android:text="@string/what_s_your_name"
+            android:textSize="30sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/onboarding_height_title_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
+            android:text="@string/what_s_your_height"
+            android:textSize="30sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/onboarding_weight_title_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
+            android:text="@string/what_s_your_weight"
+            android:textSize="30sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/onboarding_age_title_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
+            android:text="@string/what_s_your_age"
+            android:textSize="30sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/onboarding_congrats_title_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
+            android:text="@string/hurray"
+            android:textSize="30sp"
+            android:visibility="gone" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="2dp" />
+
+        <TextView
+            android:id="@+id/onboarding_welcome_subtitle_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/let_s_get_you_settled_in"
+            android:textColor="@color/grey"
+            android:textSize="20sp"
+            android:visibility="gone" />
+
+        <EditText
+            android:id="@+id/onboarding_name_edittext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:hint="@string/type_your_name_here"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textColorHint="@color/grey"
+            android:textSize="20sp"
+            android:visibility="gone"
+            android:importantForAutofill="no" />
+
+        <EditText
+            android:id="@+id/onboarding_height_edittext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:hint="@string/type_your_height_here"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textColorHint="@color/grey"
+            android:textSize="20sp"
+            android:visibility="gone"
+            tools:ignore="TextFields"
+            android:importantForAutofill="no" />
+
+        <EditText
+            android:id="@+id/onboarding_weight_edittext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:hint="@string/type_your_weight_here"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textColorHint="@color/grey"
+            android:textSize="20sp"
+            android:visibility="gone"
+            android:importantForAutofill="no"
+            tools:ignore="TextFields" />
+
+        <EditText
+            android:id="@+id/onboarding_age_edittext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:hint="@string/type_your_age_here"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textColorHint="@color/grey"
+            android:textSize="20sp"
+            android:visibility="gone"
+            android:importantForAutofill="no" />
+
+        <TextView
+            android:id="@+id/onboarding_congrats_subtitle_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:inputType="text"
+            android:maxLines="1"
+            android:text="@string/sync_your_life_let_s_begin"
+            android:textColor="@color/grey"
+            android:textSize="20sp"
+            android:visibility="gone"
+            tools:ignore="TextViewEdits" />
+
+        <View
+            android:id="@+id/onboarding_next_view"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="right"
+            android:background="@drawable/outline_arrow_circle_left_24"
+            android:visibility="gone"
+            tools:ignore="RtlHardcoded">
+
+        </View>
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/onboarding_loading_CircularProgressIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:visibility="gone" />
+
+
+    </LinearLayout>
+
+</FrameLayout>
