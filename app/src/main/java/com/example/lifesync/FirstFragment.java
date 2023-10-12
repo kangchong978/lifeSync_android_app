@@ -20,6 +20,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.graphics.ColorUtils;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import com.example.lifesync.databinding.FragmentFirstBinding;
@@ -63,6 +65,7 @@ public class FirstFragment extends Fragment {
     private HorizontalScrollView horizontalScrollView; // Replace with your view ID
 
     int timerValue = 0;
+    private DrawerLayout drawerLayout;
 
     private final List<Integer> progressIndicatorColors = new ArrayList<Integer>() {
         {
@@ -305,7 +308,15 @@ public class FirstFragment extends Fragment {
 
         }, new Date(), 1000);
 
+       DrawerLayout drawerLayout = view.findViewById(R.id.drawer_layout);
 
+        ImageButton menu_button = view.findViewById(R.id.menu_button);
+        menu_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawerLayout.openDrawer(GravityCompat.START);
+            }
+        });
     }
 
     private void applyMarginForView(View view, int left, int right) {
