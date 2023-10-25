@@ -25,7 +25,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import com.example.lifesync.databinding.FragmentFirstBinding;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 
 import org.json.JSONArray;
@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
 public class FirstFragment extends Fragment {
 
     private FragmentFirstBinding binding;
-    private Context context;
+    private static Context context;
     static String[] viewActivityOptions = {"7 days", "30 days", "365 days", "All"};
     static String greeting = "Welcome";
     static String username = "Sophia Muller";
@@ -65,7 +65,6 @@ public class FirstFragment extends Fragment {
     private HorizontalScrollView horizontalScrollView; // Replace with your view ID
 
     int timerValue = 0;
-    private DrawerLayout drawerLayout;
 
     private final List<Integer> progressIndicatorColors = new ArrayList<Integer>() {
         {
@@ -99,7 +98,7 @@ public class FirstFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         context = view.getContext();
 
-        progressPercentage  = (TextView) view.findViewById(R.id.progressPercentage);
+        progressPercentage = (TextView) view.findViewById(R.id.progressPercentage);
         graphView = view.findViewById(R.id.graphView);
         horizontalScrollView = view.findViewById(R.id.dailyActivityHorizontalScrollView1);
 
@@ -115,7 +114,7 @@ public class FirstFragment extends Fragment {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-            //                Log.d("Spinner", String.format("%d", id));
+                //                Log.d("Spinner", String.format("%d", id));
                 setMyActivityGraphView(((int) id));
             }
 
@@ -289,10 +288,10 @@ public class FirstFragment extends Fragment {
                                     }
                                 }
 
-                                @SuppressLint("DefaultLocale") String displayPercentageText = String.format("%d/%d", activeActivityList.length - inProgressActivityList.length , activeActivityList.length);
+                                @SuppressLint("DefaultLocale") String displayPercentageText = String.format("%d/%d", activeActivityList.length - inProgressActivityList.length, activeActivityList.length);
                                 String cheers = "\uD83C\uDF8A\n";
-                                if(  activeActivityList.length - inProgressActivityList.length  == activeActivityList.length   ){
-                                    displayPercentageText = activeActivityList.length +  cheers;
+                                if (activeActivityList.length - inProgressActivityList.length == activeActivityList.length) {
+                                    displayPercentageText = activeActivityList.length + cheers;
                                 }
 
                                 progressPercentage.setText(displayPercentageText);
@@ -308,15 +307,10 @@ public class FirstFragment extends Fragment {
 
         }, new Date(), 1000);
 
-       DrawerLayout drawerLayout = view.findViewById(R.id.drawer_layout);
+        DrawerLayout drawerLayout = view.findViewById(R.id.drawer_layout);
 
         ImageButton menu_button = view.findViewById(R.id.menu_button);
-        menu_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                drawerLayout.openDrawer(GravityCompat.START);
-            }
-        });
+        menu_button.setOnClickListener(view12 -> drawerLayout.openDrawer(GravityCompat.START));
     }
 
     private void applyMarginForView(View view, int left, int right) {
@@ -364,17 +358,12 @@ public class FirstFragment extends Fragment {
     }
 
     private void showBottomSheetDialog() {
-        @SuppressLint("InflateParams") View customBottomSheetView = getLayoutInflater().inflate(R.layout.add_activity_bottom_sheet, null);
+         BottomSheetDialogFragment addActivityFragment = new AddActivityModalFragment();
+        addActivityFragment.show(getParentFragmentManager(), "BSDialogFragment");
 
-        BottomSheetDialog dialog = new BottomSheetDialog(requireContext());
-        dialog.setContentView(customBottomSheetView);
-
-        // You can add any additional functionality or customization to your bottom sheet here.
-
-        dialog.show();
     }
 
-    private List<ActivityTask> getDummyActivityTasks() {
+    static  public List<ActivityTask> getDummyActivityTasks() {
         List<ActivityTask> activityTasks = new ArrayList<>();
         try {
             String result = readFile("dummyActivityTasks.json");
@@ -430,7 +419,7 @@ public class FirstFragment extends Fragment {
         return activitiesHistories;
     }
 
-    private String readFile(String fileName) throws IOException {
+    private static String readFile(String fileName) throws IOException {
 
         BufferedReader reader;
         reader = new BufferedReader(new InputStreamReader(context.getAssets().open(fileName), StandardCharsets.UTF_8));

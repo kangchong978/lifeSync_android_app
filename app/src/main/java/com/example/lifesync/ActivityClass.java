@@ -21,6 +21,12 @@ public enum ActivityClass {
         return String.valueOf(code);
     }
 
+    public int getInt() {
+        //only override toString, if the returned value has a meaning for the
+        //human viewing this value
+        return code;
+    }
+
     static public ActivityClass getClassFromInt(int code) {
         switch (code) {
             case 0:

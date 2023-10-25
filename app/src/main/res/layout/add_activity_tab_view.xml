@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<ScrollView android:id="@+id/dailyActivityHorizontalScrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="20dp"  android:orientation="vertical">
+        <LinearLayout
+            android:id="@+id/parentLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/add_new_activity_button"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/add_new_activity_button"
+            android:paddingHorizontal="10dp"  android:gravity="center"   android:layout_marginTop="20dp"  >
+
+            <View
+                android:layout_gravity="center"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:background="@drawable/round_add_24" />
+
+
+        </LinearLayout>
+    </LinearLayout>
+
+
+</ScrollView>
+
+
+

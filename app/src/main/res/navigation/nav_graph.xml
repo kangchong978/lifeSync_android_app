@@ -20,6 +20,7 @@
         <!--                    app:destination="@id/OnBoarding" />-->
     </fragment>
 
+
     <fragment
         android:id="@+id/OnBoardingFragment"
         android:name="com.example.lifesync.onboarding"
