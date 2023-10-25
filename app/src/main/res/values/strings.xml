@@ -29,4 +29,5 @@
     <string name="sync_your_life_let_s_begin">Sync Your Life: Let\'s Begin !</string>
     <string name="type_your_age_here">Type your age here …</string>
     <string name="what_s_your_name">What`s your name ?</string>
+    <string name="spinner">spinner</string>
 </resources>
