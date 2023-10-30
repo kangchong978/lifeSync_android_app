@@ -19,6 +19,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -82,6 +83,14 @@ public class FirstFragment extends Fragment {
         }
     };
     com.example.lifesync.DailyActivityView[] dailyActivityViews;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        DBManager dbManager = new DBManager(getContext());
+        dbManager.open();
+
+    }
 
     @Override
     public View onCreateView(
@@ -358,12 +367,12 @@ public class FirstFragment extends Fragment {
     }
 
     private void showBottomSheetDialog() {
-         BottomSheetDialogFragment addActivityFragment = new AddActivityModalFragment();
+        BottomSheetDialogFragment addActivityFragment = new AddActivityModalFragment();
         addActivityFragment.show(getParentFragmentManager(), "BSDialogFragment");
 
     }
 
-    static  public List<ActivityTask> getDummyActivityTasks() {
+    static public List<ActivityTask> getDummyActivityTasks() {
         List<ActivityTask> activityTasks = new ArrayList<>();
         try {
             String result = readFile("dummyActivityTasks.json");
