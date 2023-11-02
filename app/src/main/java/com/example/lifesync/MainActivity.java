@@ -3,6 +3,7 @@ package com.example.lifesync;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -35,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
     ActionBarDrawerToggle drawerToggle;
     final private StepDetector stepDetector = new StepDetector();
     private int steps = 0;
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor;
 
     @SuppressLint("RestrictedApi")
     @Override
@@ -58,6 +61,12 @@ public class MainActivity extends AppCompatActivity {
         //                         textView.setText(String.format("Steps： %d", steps));
         // Do nothing
 
+        sharedPreferences = getSharedPreferences("StepCounterPrefs", Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+
+        // Retrieve the step count from SharedPreferences and update your UI or data model
+        int savedStepCount = sharedPreferences.getInt("stepCount", 0);
+        // Update your UI or data model with the retrieved step count
 
         SensorEventListener sensorEventListener = new SensorEventListener() {
 
@@ -117,11 +126,5 @@ public class MainActivity extends AppCompatActivity {
         intent.setData(Uri.parse("package:" + getPackageName()));
         startActivity(intent);
     }
-
-
-
-
-
-
 
 }
