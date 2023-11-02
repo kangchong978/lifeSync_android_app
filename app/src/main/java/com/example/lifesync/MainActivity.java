@@ -41,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
 
     protected void onCreate(Bundle savedInstanceState) {
 
-
         super.onCreate(savedInstanceState);
         com.example.lifesync.databinding.ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
          setContentView(binding.getRoot());
@@ -67,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
                 float x = event.values[0];
                 float y = event.values[1];
                 float z = event.values[2];
-
 
                 stepDetector.processAccelerometerData(x, y, z);
                 int newSteps = stepDetector.getStepCount();
