@@ -44,9 +44,9 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         com.example.lifesync.databinding.ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+         setContentView(binding.getRoot());
         SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        List<Sensor> accelerometerSensor = Collections.singletonList(sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER));
+         List<Sensor> accelerometerSensor = Collections.singletonList(sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER));
 
         if (!hasBatteryOptimizationExemption()) {
             requestBatteryOptimizationExemption();
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
 //         Log.d( "Debugger", accelerometerSensor.toString());
 
         Sensor aSensor = accelerometerSensor.get(0);
-        Log.d("Debugger", aSensor.toString());
+        Log.d( "Debugger", aSensor.toString());
         //                         textView.setText(String.format("Steps： %d", steps));
         // Do nothing
 
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        sensorManager.registerListener(sensorEventListener, aSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(sensorEventListener, aSensor, SensorManager.SENSOR_DELAY_NORMAL );
 
 //        androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar); //Ignore red line errors
 //        setSupportActionBar(toolbar);
@@ -119,6 +119,11 @@ public class MainActivity extends AppCompatActivity {
         intent.setData(Uri.parse("package:" + getPackageName()));
         startActivity(intent);
     }
+
+
+
+
+
 
 
 }
