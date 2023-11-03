@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -37,6 +38,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.lifesync.databinding.FragmentFirstBinding;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 
 import org.json.JSONArray;
@@ -163,6 +165,7 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
     private boolean redirectToOnboarding;
     private int spinnerOptionId = 0;
     private int classSpinnerOptionId = 0;
+    private UserInfo userInfo;
 
     @Override
     public void onDestroy() {
@@ -187,7 +190,7 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
         dbManager = new DBManager(getContext());
         dbManager.open();
         activeActivityList = dbManager.fetchActivityTasks(todayDayOfWeek).toArray(new ActivityTask[0]);
-        UserInfo userInfo = dbManager.fetchUserInfo();
+        userInfo = dbManager.fetchUserInfo();
 
         if (userInfo != null) {
             username = userInfo.name;
@@ -214,6 +217,9 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         context = view.getContext();
+
+        TextView versionTextView = view.findViewById(R.id.versionTextView);
+        versionTextView.setText("version: " + BuildConfig.VERSION_NAME + " (" + BuildConfig.VERSION_CODE + ")");
 
 
         progressPercentage = (TextView) view.findViewById(R.id.progressPercentage);
@@ -283,10 +289,19 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
         inProgressActivityList = activeActivityList;
 
 
-        DrawerLayout drawerLayout = view.findViewById(R.id.drawer_layout);
-
         ImageButton menu_button = view.findViewById(R.id.menu_button);
-        menu_button.setOnClickListener(view12 -> drawerLayout.openDrawer(GravityCompat.START));
+        menu_button.setOnClickListener(view12 -> {
+
+            NavHostFragment navHostFragment = (NavHostFragment) Objects.requireNonNull(getActivity()).getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_content_main);
+            assert navHostFragment != null;
+            NavController navController = navHostFragment.getNavController();
+            Bundle bundle = new Bundle();
+            bundle.putString("previousName", userInfo.name);
+            bundle.putInt("previousHeight", userInfo.height);
+            bundle.putInt("previousWeight", userInfo.weight);
+            bundle.putInt("previousAge", userInfo.age);
+            navController.navigate(R.id.OnBoardingFragment, bundle);
+        });
 
     }
 

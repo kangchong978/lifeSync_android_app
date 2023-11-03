@@ -71,10 +71,21 @@ public class onboarding extends Fragment {
     private int height;
     private int age;
 
+    private boolean skipHurray = false;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Bundle args = getArguments();
+        if (args != null) {
+            name = args.getString("previousName");
+            height = args.getInt("previousHeight");
+            weight = args.getInt("previousWeight");
+            age = args.getInt("previousAge");
 
+            currentStep  = OnboardingStep.InputName;
+            skipHurray = true;
+        }
     }
 
     @Override
@@ -109,7 +120,7 @@ public class onboarding extends Fragment {
         onboarding_loading_CircularProgressIndicator = view.findViewById(R.id.onboarding_loading_CircularProgressIndicator);
 
 
-        displayOnboardingStepView(OnboardingStep.Welcome);
+        displayOnboardingStepView(currentStep);
     }
 
     public void onClickNextView() {
@@ -223,17 +234,18 @@ public class onboarding extends Fragment {
     private void displayOnboardingStepView(OnboardingStep step) {
         resetOnboardingStepView();
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+
         switch (step) {
             case Welcome:
                 onboarding_welcome_title_textview.setVisibility(View.VISIBLE);
                 onboarding_welcome_subtitle_textview.setVisibility(View.VISIBLE);
                 onboarding_next_view.setVisibility(View.VISIBLE);
-
                 break;
             case InputName:
                 onboarding_name_title_textview.setVisibility(View.VISIBLE);
                 onboarding_name_edittext.setVisibility(View.VISIBLE);
                 onboarding_next_view.setVisibility(View.VISIBLE);
+                onboarding_name_edittext.setText(name);
                 onboarding_name_edittext.requestFocus();
                 imm.showSoftInput(onboarding_name_edittext, InputMethodManager.SHOW_IMPLICIT);
                 break;
@@ -241,6 +253,7 @@ public class onboarding extends Fragment {
                 onboarding_height_title_textview.setVisibility(View.VISIBLE);
                 onboarding_height_edittext.setVisibility(View.VISIBLE);
                 onboarding_next_view.setVisibility(View.VISIBLE);
+                onboarding_height_edittext.setText(String.valueOf(height));
                 onboarding_height_edittext.requestFocus();
                 imm.showSoftInput(onboarding_height_edittext, InputMethodManager.SHOW_IMPLICIT);
                 break;
@@ -248,6 +261,7 @@ public class onboarding extends Fragment {
                 onboarding_weight_title_textview.setVisibility(View.VISIBLE);
                 onboarding_weight_edittext.setVisibility(View.VISIBLE);
                 onboarding_next_view.setVisibility(View.VISIBLE);
+                onboarding_weight_edittext.setText(String.valueOf(weight));
                 onboarding_weight_edittext.requestFocus();
                 imm.showSoftInput(onboarding_weight_edittext, InputMethodManager.SHOW_IMPLICIT);
                 break;
@@ -255,14 +269,17 @@ public class onboarding extends Fragment {
                 onboarding_age_title_textview.setVisibility(View.VISIBLE);
                 onboarding_age_edittext.setVisibility(View.VISIBLE);
                 onboarding_next_view.setVisibility(View.VISIBLE);
+                onboarding_age_edittext.setText(String.valueOf(age));
                 onboarding_age_edittext.requestFocus();
                 imm.showSoftInput(onboarding_age_edittext, InputMethodManager.SHOW_IMPLICIT);
                 break;
             case Congrats:
-                onboarding_congrats_title_textview.setVisibility(View.VISIBLE);
-                onboarding_congrats_subtitle_textview.setVisibility(View.VISIBLE);
-                onboarding_next_view.setVisibility(View.VISIBLE);
-                break;
+                if(!skipHurray){
+                    onboarding_congrats_title_textview.setVisibility(View.VISIBLE);
+                    onboarding_congrats_subtitle_textview.setVisibility(View.VISIBLE);
+                    onboarding_next_view.setVisibility(View.VISIBLE);
+                    break;
+                }
             case HomePage:
                 onboarding_next_view.setVisibility(View.GONE);
                 onboarding_loading_CircularProgressIndicator.setVisibility(View.VISIBLE);
