@@ -42,6 +42,15 @@ public class DBManager {
         database.insert(DatabaseHelper.ACTIVITY_TASKS_TABLE_NAME, null, contentValue);
     }
 
+    public void insertUserInfo(String name, int weight, int height, int age) {
+        ContentValues contentValue = new ContentValues();
+        contentValue.put(DatabaseHelper.NAME, name);
+        contentValue.put(DatabaseHelper.WEIGHT, weight);
+        contentValue.put(DatabaseHelper.HEIGHT, height);
+        contentValue.put(DatabaseHelper.AGE, age);
+        database.insert(DatabaseHelper.USER_INFO_TABLE_NAME, null, contentValue);
+    }
+
     public List<ActivityTask> fetchActivityTasks(int targetDay) {
         List<ActivityTask> activityTasks = new ArrayList<ActivityTask>();
 
@@ -62,10 +71,41 @@ public class DBManager {
 
             }
         }
-//        cursor.close();
-//        return cursor;
         return activityTasks;
     }
+
+    public UserInfo fetchUserInfo( ) {
+        String[] columns = new String[]{DatabaseHelper.ID, DatabaseHelper.NAME, DatabaseHelper.WEIGHT, DatabaseHelper.HEIGHT, DatabaseHelper.AGE};
+        Cursor cursor = database.query(
+                DatabaseHelper.USER_INFO_TABLE_NAME,
+                columns,
+                null,
+                null,
+                null,
+                null,
+                DatabaseHelper.ID + " DESC",
+                "1"
+        );
+
+        UserInfo userInfo = null; // Initialize as null
+
+        if (cursor != null && cursor.moveToFirst()) {
+            @SuppressLint("Range") int id = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.ID));
+            @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(DatabaseHelper.NAME));
+            @SuppressLint("Range") int weight = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.WEIGHT));
+            @SuppressLint("Range") int height = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.HEIGHT));
+            @SuppressLint("Range") int age = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.AGE));
+
+            userInfo = new UserInfo(id, name, weight, height, age);
+        }
+
+        if (cursor != null) {
+            cursor.close(); // Close the cursor when you're done with it
+        }
+
+        return userInfo;
+    }
+
 
     public int updateActivityTask(int id, String activityName, int targetValue) {
         ContentValues contentValue = new ContentValues();
@@ -75,14 +115,14 @@ public class DBManager {
         return i;
     }
 
-    public int updateActivityTask(int id, String activityName ) {
+    public int updateActivityTask(int id, String activityName) {
         ContentValues contentValue = new ContentValues();
         contentValue.put(DatabaseHelper.ACTIVITY_NAME, activityName);
         int i = database.update(DatabaseHelper.ACTIVITY_TASKS_TABLE_NAME, contentValue, DatabaseHelper.ID + " = " + id, null);
         return i;
     }
 
-    public int updateActivityTask(int id , int targetValue) {
+    public int updateActivityTask(int id, int targetValue) {
         ContentValues contentValue = new ContentValues();
         contentValue.put(DatabaseHelper.TARGET_VALUE, targetValue);
         int i = database.update(DatabaseHelper.ACTIVITY_TASKS_TABLE_NAME, contentValue, DatabaseHelper.ID + " = " + id, null);

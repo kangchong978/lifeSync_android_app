@@ -27,6 +27,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TIMESTAMP = "timestamp";
     public static final String ACTIVITY_TASK_IDS = "activityTaskIds";
 
+    public static final String USER_INFO_TABLE_NAME = "USER_INFO";
+
+
+    public static final String NAME ="name";
+    public static final String HEIGHT ="height";
+    public static final String WEIGHT ="weight";
+    public static final String AGE ="age";
+
+
     // Database Information
     static final String DB_NAME = "database.DB";
 
@@ -52,6 +61,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + ACTIVITY_TASK_IDS + " TEXT "
             + ");";
 
+    private static final String CREATE_USER_INFO_TABLE = "CREATE TABLE " + USER_INFO_TABLE_NAME + " ("
+            + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+            + NAME + " TEXT, "
+            + HEIGHT + " INTEGER, "
+            + WEIGHT + " INTEGER, "
+            + AGE + " INTEGER );";
+
     public DatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
     }
@@ -60,6 +76,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_ACTIVITY_TASKS_TABLE);
         db.execSQL(CREATE_ACTIVITY_RECORDS_TABLE);
+        db.execSQL(CREATE_USER_INFO_TABLE);
 
     }
 
@@ -67,6 +84,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + ACTIVITY_TASKS_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + ACTIVITY_RECORDS_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + USER_INFO_TABLE_NAME);
         onCreate(db);
     }
 }

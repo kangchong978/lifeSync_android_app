@@ -28,6 +28,9 @@ import androidx.core.graphics.ColorUtils;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.lifesync.databinding.FragmentFirstBinding;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -49,6 +52,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -121,6 +125,7 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
             isServiceBound = false;
         }
     };
+    private boolean redirectToOnboarding;
 
     @Override
     public void onDestroy() {
@@ -144,11 +149,24 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
         dbManager = new DBManager(getContext());
         dbManager.open();
         activeActivityList = dbManager.fetchActivityTasks(todayDayOfWeek).toArray(new ActivityTask[0]);
+        UserInfo userInfo = dbManager.fetchUserInfo();
+
+        if (userInfo != null) {
+            username = userInfo.name;
+        } else {
+            redirectToOnboarding = true;
+
+        }
 
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        NavHostFragment navHostFragment = (NavHostFragment) Objects.requireNonNull(getActivity()).getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_content_main);
+        assert navHostFragment != null;
+        NavController navController = navHostFragment.getNavController();
+        if (redirectToOnboarding)
+            navController.navigate(R.id.OnBoardingFragment);
 
         binding = FragmentFirstBinding.inflate(inflater, container, false);
         return binding.getRoot();
@@ -615,8 +633,7 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
 
                             break;
                     }
-
-//                    Log.d(String.format("activityTaskList %d %d ", i, j), String.format("%d",activityTaskList.get(j).getValue()));
+ 
                 }
             }
 
