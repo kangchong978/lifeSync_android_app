@@ -111,6 +111,8 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
             Log.d("binder", "ServiceConnection: connected to service.");
             StepCountService.UiBinder binder = (StepCountService.UiBinder) service;
             stepCountService = binder.getService();
+
+            updateFragmentUi(stepCountService.getSensorData()); // initial
             stepCountService.setStepCountCallback((e) -> {
                 Log.d("Value callback", String.valueOf(e));
                 updateFragmentUi(e);
@@ -223,7 +225,6 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
 
 
         inProgressActivityList = activeActivityList;
-        updateFragmentUi(new SensorData(0, 0, 0, 0));
 
 
         DrawerLayout drawerLayout = view.findViewById(R.id.drawer_layout);
@@ -441,6 +442,7 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
     public void onActivityAdded(String activityName) {
         Log.d("BottomSheetDialogFragment", "Dismissed");
         activeActivityList = dbManager.fetchActivityTasks(todayDayOfWeek).toArray(new ActivityTask[0]);
+        updateFragmentUi(stepCountService.getSensorData());
     }
 
 
@@ -633,7 +635,7 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
 
                             break;
                     }
- 
+
                 }
             }
 

@@ -103,8 +103,10 @@ public class StepCountService extends Service {
         }
     };
 
-    public int getSteps() {
-        return steps;
+    public SensorData getSensorData() {
+        double stepLengthMeters = 0.7; // Example average step length in meters
+        double distance = steps * stepLengthMeters;
+        return  new SensorData(steps, 0, distance, 0);
     }
 
     private Notification createNotification() {
