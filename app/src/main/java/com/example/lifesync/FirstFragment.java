@@ -2,10 +2,14 @@ package com.example.lifesync;
 
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,7 +70,6 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
     private TextView progressPercentage;
     private HorizontalScrollView horizontalScrollView; // Replace with your view ID
 
-    int timerValue = 0;
 
     private int todayDayOfWeek;
 
@@ -88,18 +91,58 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
     List<com.example.lifesync.DailyActivityView> dailyActivityViews = new ArrayList<>();
     DBManager dbManager;
 
-    Timer timer;
+    Intent intent;
 
+    StepCountService stepCountService;
+
+    LinearLayout dailyActivityLinearLayout;
+    CircularProgressIndicator circularProgressIndicatorSmall;
+    CircularProgressIndicator circularProgressIndicatorMiddle;
+    CircularProgressIndicator circularProgressIndicatorBig;
+
+    private boolean isServiceBound = false;
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.d("binder", "ServiceConnection: connected to service.");
+            StepCountService.UiBinder binder = (StepCountService.UiBinder) service;
+            stepCountService = binder.getService();
+            stepCountService.setStepCountCallback((e) -> {
+                Log.d("Value callback", String.valueOf(e));
+                updateFragmentUi(e);
+            });
+            isServiceBound = true;
+        }
+
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            Log.d("binder", "ServiceConnection: disconnected to service.");
+            isServiceBound = false;
+        }
+    };
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (isServiceBound) {
+            MainActivity mainActivity = (MainActivity) getActivity();
+            stepCountService.setStepCountCallback(null);
+            mainActivity.unbindService(serviceConnection);
+            isServiceBound = false;
+        }
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MainActivity mainActivity = (MainActivity) getActivity();
+        mainActivity.bindStepService(serviceConnection);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             todayDayOfWeek = LocalDate.now().getDayOfWeek().getValue();
         }
         dbManager = new DBManager(getContext());
         dbManager.open();
-//        dbManager.insertActivityTask(3, "steps", 100, true);
         activeActivityList = dbManager.fetchActivityTasks(todayDayOfWeek).toArray(new ActivityTask[0]);
 
     }
@@ -116,12 +159,11 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
         super.onViewCreated(view, savedInstanceState);
         context = view.getContext();
 
+
         progressPercentage = (TextView) view.findViewById(R.id.progressPercentage);
         graphView = view.findViewById(R.id.graphView);
         horizontalScrollView = view.findViewById(R.id.dailyActivityHorizontalScrollView1);
 
-
-//        activeActivityList = getDummyActivityTasks().toArray(new ActivityTask[0]);
 
         // My activity Ui Status Update
         // Spinner items assign
@@ -155,180 +197,181 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
         createActivityButton.setOnClickListener(v -> showBottomSheetDialog());
 
         // Daily tasks initialize
-        LinearLayout dailyActivityLinearLayout = (LinearLayout) view.findViewById(R.id.dailyActivityLinearLayout);
-        CircularProgressIndicator circularProgressIndicatorSmall = (CircularProgressIndicator) view.findViewById(R.id.progress_circular_small);
-        CircularProgressIndicator circularProgressIndicatorMiddle = (CircularProgressIndicator) view.findViewById(R.id.progress_circular_middle);
-        CircularProgressIndicator circularProgressIndicatorBig = (CircularProgressIndicator) view.findViewById(R.id.progress_circular_big);
+        dailyActivityLinearLayout = (LinearLayout) view.findViewById(R.id.dailyActivityLinearLayout);
+        circularProgressIndicatorSmall = (CircularProgressIndicator) view.findViewById(R.id.progress_circular_small);
+        circularProgressIndicatorMiddle = (CircularProgressIndicator) view.findViewById(R.id.progress_circular_middle);
+        circularProgressIndicatorBig = (CircularProgressIndicator) view.findViewById(R.id.progress_circular_big);
         // Assuming you have an array to store references to the DailyActivityView objects
 
 
-        timer = new Timer();
-
         inProgressActivityList = activeActivityList;
+        updateFragmentUi(new SensorData(0, 0, 0, 0));
 
-//        dailyActivityViews = new DailyActivityView[inProgressActivityList.length];
-        timer.schedule(new TimerTask() {
-
-            @Override
-            public void run() {
-                if (timerValue >= 100) {
-                    timerValue = 0;
-                } else {
-                    timerValue = 1;
-                }
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-
-
-                    for (int i = 0; i < activeActivityList.length; i++) {
-                        if (activeActivityList[i].getValue() >= 0) {
-                            activeActivityList[i].setPreviousValue(activeActivityList[i].getValue());
-
-                        }
-
-                        activeActivityList[i].setValue(activeActivityList[i].getValue() + timerValue * (i + new Random().nextInt((20 - i) + 1)));
-                        if (activeActivityList[i].getValue() >= activeActivityList[i].getTargetValue() && !activeActivityList[i].isDone()) {
-                            activeActivityList[i].setDone(true);
-                        }
-//                        Log.d("InProgressActivity", String.format("%d / %d  = %d", inProgressActivityList[i].getValue(), inProgressActivityList[i].getTargetValue(), Math.round((((double) inProgressActivityList[i].getValue() / inProgressActivityList[i].getTargetValue()) * 100))));
-                    }
-
-                    inProgressActivityList = Arrays.stream(activeActivityList).filter(e -> !e.isDone()).toArray(ActivityTask[]::new);
-                    Arrays.sort(inProgressActivityList);
-//                    Log.d("InProgressActivity", String.format("[0] %d / %d %b", inProgressActivityList[0].getValue(), inProgressActivityList[0].getTargetValue(),  inProgressActivityList[0].isDone()));
-
-                    requireActivity().runOnUiThread(() -> {
-                        if (inProgressActivityList.length > 0) {
-                            Integer color = retrieveProgressColor(inProgressActivityList[0]);
-                            Integer trackColor = getTrackColor(color);
-                            circularProgressIndicatorSmall.setIndicatorColor(color);
-                            circularProgressIndicatorSmall.setTrackColor(trackColor);
-                            circularProgressIndicatorSmall.setTrackThickness(50);
-                            int increasedValue = inProgressActivityList[0].getPreviousValue() - inProgressActivityList[0].getValue();
-                            if (increasedValue < 1) {
-                                increasedValue = 1;
-                            }
-
-
-                            int indicatorProgress = (int) Math.round((((double) inProgressActivityList[0].getValue() / inProgressActivityList[0].getTargetValue()) * 100));
-                            ObjectAnimator.ofInt(circularProgressIndicatorSmall, "progress", indicatorProgress).setDuration(200 ^ increasedValue).start();
-                        } else {
-                            circularProgressIndicatorSmall.setProgress(0);
-                            circularProgressIndicatorSmall.setTrackThickness(3);
-
-                        }
-                        if (inProgressActivityList.length > 1) {
-                            Integer color = retrieveProgressColor(inProgressActivityList[1]);
-                            Integer trackColor = getTrackColor(color);
-                            circularProgressIndicatorMiddle.setIndicatorColor(color);
-                            circularProgressIndicatorMiddle.setTrackColor(trackColor);
-                            circularProgressIndicatorMiddle.setTrackThickness(50);
-                            int increasedValue = inProgressActivityList[0].getPreviousValue() - inProgressActivityList[0].getValue();
-                            if (increasedValue < 1) {
-                                increasedValue = 1;
-                            }
-                            int indicatorProgress = (int) Math.round((((double) inProgressActivityList[1].getValue() / inProgressActivityList[1].getTargetValue()) * 100));
-                            ObjectAnimator.ofInt(circularProgressIndicatorMiddle, "progress", indicatorProgress).setDuration(200 ^ increasedValue).start();
-
-                        } else {
-                            circularProgressIndicatorMiddle.setProgress(0);
-                            circularProgressIndicatorMiddle.setTrackThickness(2);
-
-                        }
-                        if (inProgressActivityList.length > 2) {
-                            Integer color = retrieveProgressColor(inProgressActivityList[2]);
-                            Integer trackColor = getTrackColor(color);
-                            circularProgressIndicatorBig.setIndicatorColor(color);
-                            circularProgressIndicatorBig.setTrackColor(trackColor);
-                            circularProgressIndicatorBig.setTrackThickness(50);
-                            int increasedValue = inProgressActivityList[0].getPreviousValue() - inProgressActivityList[0].getValue();
-                            if (increasedValue < 1) {
-                                increasedValue = 1;
-                            }
-                            int indicatorProgress = (int) Math.round((((double) inProgressActivityList[2].getValue() / inProgressActivityList[2].getTargetValue()) * 100));
-                            ObjectAnimator.ofInt(circularProgressIndicatorBig, "progress", indicatorProgress).setDuration(150 ^ increasedValue).start();
-                        } else {
-                            circularProgressIndicatorBig.setProgress(0);
-                            circularProgressIndicatorBig.setTrackThickness(1);
-
-                        }
-
-
-                        if (dailyActivityViews.size() > activeActivityList.length) {
-                            for (int i = activeActivityList.length; i < dailyActivityViews.size(); i++) {
-                                dailyActivityLinearLayout.removeView(dailyActivityViews.get(i));
-                                dailyActivityViews.remove(i);
-                            }
-                        }
-
-                        for (int i = 0; i < activeActivityList.length; i++) {
-                            ActivityTask task = activeActivityList[i];
-                            int displayValue = task.getValue();
-                            ActivityClass activityClass = task.getActivityClass();
-                            int id = task.getId();
-                            if (activeActivityList.length <= dailyActivityViews.size()) {
-                                dailyActivityViews.get(i).updateValue(String.valueOf(displayValue), task.isDone(), i, id, activityClass);
-                            } else {
-
-                                dailyActivityViews.add(i, new DailyActivityView(context, String.valueOf(displayValue), activityClass, id));
-                                dailyActivityLinearLayout.addView(dailyActivityViews.get(i));
-                            }
-
-                            if (task.isDone()) {
-                                View viewToMove = dailyActivityViews.get(i);
-                                dailyActivityLinearLayout.removeView(viewToMove); // Remove the view from its current position
-                                dailyActivityLinearLayout.addView(viewToMove);    // Add it to the end
-                            }
-                        }
-
-                        int childCount = dailyActivityLinearLayout.getChildCount();
-                        if (childCount > 0) {
-                            for (int i = 0; i < childCount; i++) {
-                                View view1 = dailyActivityLinearLayout.getChildAt(i);
-
-                                // Reset margins for all views
-                                resetMarginsForView(view1);
-
-                                // Apply margins based on position
-                                int leftMargin, rightMargin;
-                                if (i == 0) {
-                                    // First view
-                                    leftMargin = 50;
-                                    rightMargin = 10;
-                                } else if (i == childCount - 1) {
-                                    // Last view
-                                    leftMargin = 10;
-                                    rightMargin = 60;
-                                } else {
-                                    // Other views
-                                    leftMargin = rightMargin = 20;
-                                }
-
-                                applyMarginForView(view1, leftMargin, rightMargin);
-                            }
-                        }
-
-                        @SuppressLint("DefaultLocale") String displayPercentageText = String.format("%d/%d", activeActivityList.length - inProgressActivityList.length, activeActivityList.length);
-                        String cheers = "\uD83C\uDF8A\n";
-                        if (activeActivityList.length - inProgressActivityList.length == activeActivityList.length) {
-                            displayPercentageText = activeActivityList.length + cheers;
-                        }
-
-                        progressPercentage.setText(displayPercentageText);
-
-                    });
-                }
-
-
-            }
-
-        }, new Date(), 1000);
 
         DrawerLayout drawerLayout = view.findViewById(R.id.drawer_layout);
 
         ImageButton menu_button = view.findViewById(R.id.menu_button);
         menu_button.setOnClickListener(view12 -> drawerLayout.openDrawer(GravityCompat.START));
 
+    }
+
+
+    private void updateFragmentUi(SensorData sensorData) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            for (int i = 0; i < activeActivityList.length; i++) {
+                if (activeActivityList[i].getValue() >= 0) {
+                    activeActivityList[i].setPreviousValue(activeActivityList[i].getValue());
+                }
+
+                int value = sensorData.steps;
+                // process data
+                switch (activeActivityList[i].getActivityClass()) {
+
+                    case Unknown:
+                        break;
+                    case Steps:
+                        break;
+                    case Distance:
+                        value = (int) sensorData.distance;
+                        break;
+                    case BMI:
+                        value = sensorData.bmi;
+                        break;
+                    case CaloriesBurned:
+                        value = sensorData.calories;
+                        break;
+                }
+                activeActivityList[i].setValue(value);
+
+
+                if (activeActivityList[i].getValue() >= activeActivityList[i].getTargetValue() && !activeActivityList[i].isDone()) {
+                    activeActivityList[i].setDone(true);
+                }
+            }
+
+            inProgressActivityList = Arrays.stream(activeActivityList).filter(e -> !e.isDone()).toArray(ActivityTask[]::new);
+            Arrays.sort(inProgressActivityList);
+            requireActivity().runOnUiThread(() -> {
+                if (inProgressActivityList.length > 0) {
+                    Integer color = retrieveProgressColor(inProgressActivityList[0]);
+                    Integer trackColor = getTrackColor(color);
+                    circularProgressIndicatorSmall.setIndicatorColor(color);
+                    circularProgressIndicatorSmall.setTrackColor(trackColor);
+                    circularProgressIndicatorSmall.setTrackThickness(50);
+                    int increasedValue = inProgressActivityList[0].getPreviousValue() - inProgressActivityList[0].getValue();
+                    if (increasedValue < 1) {
+                        increasedValue = 1;
+                    }
+
+
+                    int indicatorProgress = (int) Math.round((((double) inProgressActivityList[0].getValue() / inProgressActivityList[0].getTargetValue()) * 100));
+                    ObjectAnimator.ofInt(circularProgressIndicatorSmall, "progress", indicatorProgress).setDuration(200 ^ increasedValue).start();
+                } else {
+                    circularProgressIndicatorSmall.setProgress(0);
+                    circularProgressIndicatorSmall.setTrackThickness(3);
+
+                }
+                if (inProgressActivityList.length > 1) {
+                    Integer color = retrieveProgressColor(inProgressActivityList[1]);
+                    Integer trackColor = getTrackColor(color);
+                    circularProgressIndicatorMiddle.setIndicatorColor(color);
+                    circularProgressIndicatorMiddle.setTrackColor(trackColor);
+                    circularProgressIndicatorMiddle.setTrackThickness(50);
+                    int increasedValue = inProgressActivityList[0].getPreviousValue() - inProgressActivityList[0].getValue();
+                    if (increasedValue < 1) {
+                        increasedValue = 1;
+                    }
+                    int indicatorProgress = (int) Math.round((((double) inProgressActivityList[1].getValue() / inProgressActivityList[1].getTargetValue()) * 100));
+                    ObjectAnimator.ofInt(circularProgressIndicatorMiddle, "progress", indicatorProgress).setDuration(200 ^ increasedValue).start();
+
+                } else {
+                    circularProgressIndicatorMiddle.setProgress(0);
+                    circularProgressIndicatorMiddle.setTrackThickness(2);
+
+                }
+                if (inProgressActivityList.length > 2) {
+                    Integer color = retrieveProgressColor(inProgressActivityList[2]);
+                    Integer trackColor = getTrackColor(color);
+                    circularProgressIndicatorBig.setIndicatorColor(color);
+                    circularProgressIndicatorBig.setTrackColor(trackColor);
+                    circularProgressIndicatorBig.setTrackThickness(50);
+                    int increasedValue = inProgressActivityList[0].getPreviousValue() - inProgressActivityList[0].getValue();
+                    if (increasedValue < 1) {
+                        increasedValue = 1;
+                    }
+                    int indicatorProgress = (int) Math.round((((double) inProgressActivityList[2].getValue() / inProgressActivityList[2].getTargetValue()) * 100));
+                    ObjectAnimator.ofInt(circularProgressIndicatorBig, "progress", indicatorProgress).setDuration(150 ^ increasedValue).start();
+                } else {
+                    circularProgressIndicatorBig.setProgress(0);
+                    circularProgressIndicatorBig.setTrackThickness(1);
+
+                }
+
+
+                if (dailyActivityViews.size() > activeActivityList.length) {
+                    for (int i = activeActivityList.length; i < dailyActivityViews.size(); i++) {
+                        dailyActivityLinearLayout.removeView(dailyActivityViews.get(i));
+                        dailyActivityViews.remove(i);
+                    }
+                }
+
+                for (int i = 0; i < activeActivityList.length; i++) {
+                    ActivityTask task = activeActivityList[i];
+                    int displayValue = task.getValue();
+                    ActivityClass activityClass = task.getActivityClass();
+                    int id = task.getId();
+                    if (activeActivityList.length <= dailyActivityViews.size()) {
+                        dailyActivityViews.get(i).updateValue(String.valueOf(displayValue), task.isDone(), i, id, activityClass);
+                    } else {
+
+                        dailyActivityViews.add(i, new DailyActivityView(context, String.valueOf(displayValue), activityClass, id));
+                        dailyActivityLinearLayout.addView(dailyActivityViews.get(i));
+                    }
+
+                    if (task.isDone()) {
+                        View viewToMove = dailyActivityViews.get(i);
+                        dailyActivityLinearLayout.removeView(viewToMove); // Remove the view from its current position
+                        dailyActivityLinearLayout.addView(viewToMove);    // Add it to the end
+                    }
+                }
+
+                int childCount = dailyActivityLinearLayout.getChildCount();
+                if (childCount > 0) {
+                    for (int i = 0; i < childCount; i++) {
+                        View view1 = dailyActivityLinearLayout.getChildAt(i);
+
+                        // Reset margins for all views
+                        resetMarginsForView(view1);
+
+                        // Apply margins based on position
+                        int leftMargin, rightMargin;
+                        if (i == 0) {
+                            // First view
+                            leftMargin = 50;
+                            rightMargin = 10;
+                        } else if (i == childCount - 1) {
+                            // Last view
+                            leftMargin = 10;
+                            rightMargin = 60;
+                        } else {
+                            // Other views
+                            leftMargin = rightMargin = 20;
+                        }
+
+                        applyMarginForView(view1, leftMargin, rightMargin);
+                    }
+                }
+
+                @SuppressLint("DefaultLocale") String displayPercentageText = String.format("%d/%d", activeActivityList.length - inProgressActivityList.length, activeActivityList.length);
+                String cheers = "\uD83C\uDF8A\n";
+                if (activeActivityList.length - inProgressActivityList.length == activeActivityList.length) {
+                    displayPercentageText = activeActivityList.length + cheers;
+                }
+
+                progressPercentage.setText(displayPercentageText);
+
+            });
+        }
     }
 
     private void applyMarginForView(View view, int left, int right) {
@@ -380,7 +423,6 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
     public void onActivityAdded(String activityName) {
         Log.d("BottomSheetDialogFragment", "Dismissed");
         activeActivityList = dbManager.fetchActivityTasks(todayDayOfWeek).toArray(new ActivityTask[0]);
-
     }
 
 
@@ -390,30 +432,6 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
         addActivityFragment.show(getParentFragmentManager(), "BSDialogFragment");
 
     }
-
-//    static public List<ActivityTask> getDummyActivityTasks() {
-//        List<ActivityTask> activityTasks = new ArrayList<>();
-//        try {
-//            String result = readFile("dummyActivityTasks.json");
-////                    Log.d("IO dummy", result);
-//            JSONArray jsonArray = new JSONArray(result);
-//
-//            for (int i = 0; i < jsonArray.length(); i++) {
-//                JSONObject jsonObj = jsonArray.getJSONObject(i);
-//                int activityClassCode = jsonObj.getInt("activityClassCode");
-//                ActivityClass activityClass = ActivityClass.getClassFromInt(activityClassCode);
-//                int value = jsonObj.getInt("value");
-//                int targetValue = jsonObj.getInt("targetValue");
-//                activityTasks.add(new ActivityTask( id, activityClass, value, targetValue));
-//            }
-//            Log.d("IO dummy", String.format("%d", activityTasks.size()));
-//
-//        } catch (Exception e) {
-//            Log.d("IO dummy", e.toString());
-//        }
-//
-//        return activityTasks;
-//    }
 
     private List<HistoryActivity> getDummyActivityHistories() {
         List<HistoryActivity> activitiesHistories = new ArrayList<>();
