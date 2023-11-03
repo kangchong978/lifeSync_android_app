@@ -1,5 +1,6 @@
 package com.example.lifesync;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,8 +16,33 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.tabs.TabLayout;
 
-public class AddActivityModalFragment extends BottomSheetDialogFragment {
+public class AddActivityModalFragment extends BottomSheetDialogFragment  {
 
+    final int todayDayOfWeek;
+
+    public AddActivityModalFragment(int todayDayOfWeek) {
+        this.todayDayOfWeek = todayDayOfWeek;
+    }
+
+    public interface OnAddActivityListener {
+        void onActivityAdded(String activityName);
+    }
+    private OnAddActivityListener mListener;
+
+    // Rest of your BottomSheetDialogFragment code
+
+    // Call this method to set the listener
+    public void setOnAddActivityListener(OnAddActivityListener listener) {
+        mListener = listener;
+    }
+    @Override
+    public void onDismiss(@NonNull DialogInterface dialog) {
+        super.onDismiss(dialog);
+        // You can return a default value or handle the case where no value is selected
+        if (mListener != null) {
+            mListener.onActivityAdded("Default Activity Name");
+        }
+    }
     static final private String[] dayOfWeek = new String[]{"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
     @Nullable
@@ -33,7 +59,9 @@ public class AddActivityModalFragment extends BottomSheetDialogFragment {
         viewPager.setAdapter(new CustomPagerAdapter(getChildFragmentManager()));
         viewPager.setOffscreenPageLimit(7);
         tabLayout.setupWithViewPager(viewPager);
+        viewPager.setCurrentItem(this.todayDayOfWeek);
     }
+
 
     private static class CustomPagerAdapter extends FragmentStatePagerAdapter {
         public CustomPagerAdapter(FragmentManager fm) {
@@ -44,7 +72,7 @@ public class AddActivityModalFragment extends BottomSheetDialogFragment {
         @Override
         public Fragment getItem(int position) {
             // Return the appropriate Fragment for each tab position
-            return AddActivityTabViewFragment.newInstance( dayOfWeek[position]);
+            return AddActivityTabViewFragment.newInstance(position);
         }
 
         @Override
@@ -57,7 +85,7 @@ public class AddActivityModalFragment extends BottomSheetDialogFragment {
         @Override
         public CharSequence getPageTitle(int position) {
             // Set tab titles if needed
-            return   dayOfWeek[position];
+            return dayOfWeek[position];
         }
     }
 }

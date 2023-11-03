@@ -20,11 +20,11 @@ import java.util.List;
 
 @SuppressLint("ViewConstructor")
 public class DailyActivityView extends LinearLayout {
-    private final ImageView activityImageView;
 
-
-    private final TextView valueTextView;
-    private final TextView unitTextView;
+    private int id;
+    private ImageView activityImageView;
+    private TextView valueTextView;
+    private TextView unitTextView;
 
 
     private final List<Integer> lineColors = new ArrayList<Integer>() {
@@ -43,8 +43,9 @@ public class DailyActivityView extends LinearLayout {
         }
     };
 
-    public DailyActivityView(Context context, String valueText, ActivityClass activityClass) {
+    public DailyActivityView(Context context, String valueText, ActivityClass activityClass, int id) {
         super(context);
+        this.id = id;
 
         this.setOrientation(VERTICAL);
         this.setBackgroundResource(R.drawable.activity_item);
@@ -55,7 +56,6 @@ public class DailyActivityView extends LinearLayout {
         activityImageView.setScaleType(ImageView.ScaleType.FIT_START);
         activityImageView.setPadding(-5, 0, 0, 0);
         @DrawableRes int imageResource = R.drawable.round_directions_run_24;
-
 
 
         switch (activityClass) {
@@ -116,7 +116,9 @@ public class DailyActivityView extends LinearLayout {
         super.onDraw(canvas);
     }
 
-    public void updateValue(String displayValue, boolean isDone, int index) {
+    public void updateValue(String displayValue, boolean isDone, int index, int taskId, ActivityClass activityClass) {
+        this.id = taskId;
+
         valueTextView.setText(displayValue);
         int color = lineColors.get(index);
         Drawable drawable = activityImageView.getDrawable();
@@ -129,7 +131,6 @@ public class DailyActivityView extends LinearLayout {
             switch (index) {
                 case 0:
                     this.setBackgroundResource(R.drawable.activity_item_done_1);
-
                     break;
                 case 1:
                     this.setBackgroundResource(R.drawable.activity_item_done_2);
@@ -148,6 +149,42 @@ public class DailyActivityView extends LinearLayout {
         } else {
             this.setBackgroundResource(R.drawable.activity_item);
         }
+        @DrawableRes int imageResource = R.drawable.round_directions_run_24;
+        switch (activityClass) {
+            case Steps:
+                break;
+            case BMI:
+                imageResource = R.drawable.round_speed_24;
+                break;
+            case Distance:
+                imageResource = R.drawable.round_directions_24;
+                break;
+            case CaloriesBurned:
+                imageResource = R.drawable.round_local_fire_department_24;
+                break;
+        }
+        activityImageView.setImageResource(imageResource);
+        String unitText = "-";
+        switch (activityClass) {
+            case Steps:
+                unitText = "Steps";
+                break;
+            case BMI:
+                unitText = "kg/m2";
+                break;
+            case Distance:
+                unitText = "Meters";
+                break;
+            case CaloriesBurned:
+                unitText = "Kcal";
+                break;
+        }
+        unitTextView.setText(unitText);
 
+    }
+
+    @Override
+    public int getId() {
+        return id;
     }
 }

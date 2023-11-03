@@ -34,14 +34,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     static final int DB_VERSION = 1;
 
     // Creating table query
-    private static final String CREATE_ACTIVITY_RECORDS_TABLE_NAME = "CREATE TABLE " + ACTIVITY_TASKS_TABLE_NAME + " ("
+    private static final String CREATE_ACTIVITY_TASKS_TABLE = "CREATE TABLE " + ACTIVITY_TASKS_TABLE_NAME + " ("
             + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + DAY + " INTEGER, "
             + ACTIVITY_NAME + " TEXT, "
             + TARGET_VALUE + " INTEGER, "
             + ENABLE + " BOOLEAN"
             + ");";
-    private static final String CREATE_ACTIVITY_TASKS_TABLE = "CREATE TABLE " + ACTIVITY_RECORDS_TABLE_NAME + " ("
+    private static final String CREATE_ACTIVITY_RECORDS_TABLE = "CREATE TABLE " + ACTIVITY_RECORDS_TABLE_NAME + " ("
             + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + RAW_SENSOR_VALUE + " INTEGER, "
             + STEPS_VALUE + " INTEGER, "
@@ -59,7 +59,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_ACTIVITY_TASKS_TABLE);
-        db.execSQL(CREATE_ACTIVITY_RECORDS_TABLE_NAME);
+        db.execSQL(CREATE_ACTIVITY_RECORDS_TABLE);
 
     }
 

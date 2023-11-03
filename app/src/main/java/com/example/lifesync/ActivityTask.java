@@ -17,11 +17,18 @@ public class ActivityTask  implements  Comparable<ActivityTask>{
 
     private boolean done;
 
+    private  int id;
+
     public int getTargetValue() {
         return targetValue;
     }
 
-    public ActivityTask(ActivityClass activityClass, int value, int targetValue) {
+    public int getId() {
+        return id;
+    }
+
+    public ActivityTask(int id, ActivityClass activityClass, int value, int targetValue) {
+        this.id = id;
         this.activityClass = activityClass;
         this.value = value;
         this.done = false;

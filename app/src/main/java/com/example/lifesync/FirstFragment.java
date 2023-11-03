@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -49,7 +50,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.stream.Collectors;
 
-public class FirstFragment extends Fragment {
+public class FirstFragment extends Fragment implements AddActivityModalFragment.OnAddActivityListener {
 
     private FragmentFirstBinding binding;
     private static Context context;
@@ -67,6 +68,8 @@ public class FirstFragment extends Fragment {
 
     int timerValue = 0;
 
+    private int todayDayOfWeek;
+
     private final List<Integer> progressIndicatorColors = new ArrayList<Integer>() {
         {
             add(Color.parseColor("#582f0e"));
@@ -82,21 +85,27 @@ public class FirstFragment extends Fragment {
 
         }
     };
-    com.example.lifesync.DailyActivityView[] dailyActivityViews;
+    List<com.example.lifesync.DailyActivityView> dailyActivityViews = new ArrayList<>();
+    DBManager dbManager;
+
+    Timer timer;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DBManager dbManager = new DBManager(getContext());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            todayDayOfWeek = LocalDate.now().getDayOfWeek().getValue();
+        }
+        dbManager = new DBManager(getContext());
         dbManager.open();
+//        dbManager.insertActivityTask(3, "steps", 100, true);
+        activeActivityList = dbManager.fetchActivityTasks(todayDayOfWeek).toArray(new ActivityTask[0]);
 
     }
 
     @Override
-    public View onCreateView(
-            @NonNull LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState
-    ) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         binding = FragmentFirstBinding.inflate(inflater, container, false);
         return binding.getRoot();
@@ -112,13 +121,12 @@ public class FirstFragment extends Fragment {
         horizontalScrollView = view.findViewById(R.id.dailyActivityHorizontalScrollView1);
 
 
-        activeActivityList = getDummyActivityTasks().toArray(new ActivityTask[0]);
+//        activeActivityList = getDummyActivityTasks().toArray(new ActivityTask[0]);
 
         // My activity Ui Status Update
         // Spinner items assign
         Spinner spinner = (Spinner) view.findViewById(R.id.activity_spinner);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(context,
-                R.layout.activity_spinner_item, R.id.optionName, viewActivityOptions);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, R.layout.activity_spinner_item, R.id.optionName, viewActivityOptions);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -154,13 +162,12 @@ public class FirstFragment extends Fragment {
         // Assuming you have an array to store references to the DailyActivityView objects
 
 
-        Timer timer = new Timer();
+        timer = new Timer();
 
         inProgressActivityList = activeActivityList;
 
-        dailyActivityViews = new DailyActivityView[inProgressActivityList.length];
+//        dailyActivityViews = new DailyActivityView[inProgressActivityList.length];
         timer.schedule(new TimerTask() {
-
 
             @Override
             public void run() {
@@ -190,125 +197,126 @@ public class FirstFragment extends Fragment {
                     Arrays.sort(inProgressActivityList);
 //                    Log.d("InProgressActivity", String.format("[0] %d / %d %b", inProgressActivityList[0].getValue(), inProgressActivityList[0].getTargetValue(),  inProgressActivityList[0].isDone()));
 
-                    requireActivity().runOnUiThread(
-                            () -> {
-                                if (inProgressActivityList.length > 0) {
-                                    Integer color = retrieveProgressColor(inProgressActivityList[0]);
-                                    Integer trackColor = getTrackColor(color);
-                                    circularProgressIndicatorSmall.setIndicatorColor(color);
-                                    circularProgressIndicatorSmall.setTrackColor(trackColor);
-                                    int increasedValue = inProgressActivityList[0].getPreviousValue() - inProgressActivityList[0].getValue();
-                                    if (increasedValue < 1) {
-                                        increasedValue = 1;
-                                    }
-
-
-                                    int indicatorProgress = (int) Math.round((((double) inProgressActivityList[0].getValue() / inProgressActivityList[0].getTargetValue()) * 100));
-                                    ObjectAnimator.ofInt(circularProgressIndicatorSmall, "progress", indicatorProgress).setDuration(200 ^ increasedValue).start();
-                                } else {
-                                    circularProgressIndicatorSmall.setProgress(0);
-                                    circularProgressIndicatorSmall.setTrackThickness(3);
-
-                                }
-                                if (inProgressActivityList.length > 1) {
-                                    Integer color = retrieveProgressColor(inProgressActivityList[1]);
-                                    Integer trackColor = getTrackColor(color);
-                                    circularProgressIndicatorMiddle.setIndicatorColor(color);
-                                    circularProgressIndicatorMiddle.setTrackColor(trackColor);
-                                    int increasedValue = inProgressActivityList[0].getPreviousValue() - inProgressActivityList[0].getValue();
-                                    if (increasedValue < 1) {
-                                        increasedValue = 1;
-                                    }
-                                    int indicatorProgress = (int) Math.round((((double) inProgressActivityList[1].getValue() / inProgressActivityList[1].getTargetValue()) * 100));
-                                    ObjectAnimator.ofInt(circularProgressIndicatorMiddle, "progress", indicatorProgress).setDuration(200 ^ increasedValue).start();
-
-                                } else {
-                                    circularProgressIndicatorMiddle.setProgress(0);
-                                    circularProgressIndicatorMiddle.setTrackThickness(2);
-
-                                }
-                                if (inProgressActivityList.length > 2) {
-                                    Integer color = retrieveProgressColor(inProgressActivityList[2]);
-                                    Integer trackColor = getTrackColor(color);
-                                    circularProgressIndicatorBig.setIndicatorColor(color);
-                                    circularProgressIndicatorBig.setTrackColor(trackColor);
-                                    int increasedValue = inProgressActivityList[0].getPreviousValue() - inProgressActivityList[0].getValue();
-                                    if (increasedValue < 1) {
-                                        increasedValue = 1;
-                                    }
-                                    int indicatorProgress = (int) Math.round((((double) inProgressActivityList[2].getValue() / inProgressActivityList[2].getTargetValue()) * 100));
-                                    ObjectAnimator.ofInt(circularProgressIndicatorBig, "progress", indicatorProgress).setDuration(150 ^ increasedValue).start();
-                                } else {
-                                    circularProgressIndicatorBig.setProgress(0);
-                                    circularProgressIndicatorBig.setTrackThickness(1);
-
-                                }
-
-
-                                for (int i = 0; i < activeActivityList.length; i++) {
-                                    ActivityTask task = activeActivityList[i];
-
-                                    // Check if the DailyActivityView already exists for this position
-                                    if (dailyActivityViews[i] == null) {
-                                        // If it doesn't exist, create a new one
-                                        @SuppressLint("DefaultLocale") String displayValue = String.format("%d", task.getValue());
-                                        ActivityClass activityClass = task.getActivityClass();
-                                        dailyActivityViews[i] = new DailyActivityView(context, displayValue, activityClass);
-
-
-                                        dailyActivityLinearLayout.addView(dailyActivityViews[i]);
-                                    } else {
-                                        // If the DailyActivityView already exists, update its value
-                                        @SuppressLint("DefaultLocale") String displayValue = String.format("%d", task.getValue());
-                                        dailyActivityViews[i].updateValue(displayValue, task.isDone(), i); // You need to create an updateValue method in your DailyActivityView class
-                                    }
-
-                                    if (task.isDone()) {
-                                        View viewToMove = dailyActivityViews[i];
-                                        dailyActivityLinearLayout.removeView(viewToMove); // Remove the view from its current position
-                                        dailyActivityLinearLayout.addView(viewToMove);    // Add it to the end
-                                    }
-                                }
-
-                                int childCount = dailyActivityLinearLayout.getChildCount();
-                                if (childCount > 0) {
-                                    for (int i = 0; i < childCount; i++) {
-                                        View view1 = dailyActivityLinearLayout.getChildAt(i);
-
-                                        // Reset margins for all views
-                                        resetMarginsForView(view1);
-
-                                        // Apply margins based on position
-                                        int leftMargin, rightMargin;
-                                        if (i == 0) {
-                                            // First view
-                                            leftMargin = 50;
-                                            rightMargin = 10;
-                                        } else if (i == childCount - 1) {
-                                            // Last view
-                                            leftMargin = 10;
-                                            rightMargin = 60;
-                                        } else {
-                                            // Other views
-                                            leftMargin = rightMargin = 20;
-                                        }
-
-                                        applyMarginForView(view1, leftMargin, rightMargin);
-                                    }
-                                }
-
-                                @SuppressLint("DefaultLocale") String displayPercentageText = String.format("%d/%d", activeActivityList.length - inProgressActivityList.length, activeActivityList.length);
-                                String cheers = "\uD83C\uDF8A\n";
-                                if (activeActivityList.length - inProgressActivityList.length == activeActivityList.length) {
-                                    displayPercentageText = activeActivityList.length + cheers;
-                                }
-
-                                progressPercentage.setText(displayPercentageText);
-
+                    requireActivity().runOnUiThread(() -> {
+                        if (inProgressActivityList.length > 0) {
+                            Integer color = retrieveProgressColor(inProgressActivityList[0]);
+                            Integer trackColor = getTrackColor(color);
+                            circularProgressIndicatorSmall.setIndicatorColor(color);
+                            circularProgressIndicatorSmall.setTrackColor(trackColor);
+                            circularProgressIndicatorSmall.setTrackThickness(50);
+                            int increasedValue = inProgressActivityList[0].getPreviousValue() - inProgressActivityList[0].getValue();
+                            if (increasedValue < 1) {
+                                increasedValue = 1;
                             }
 
 
-                    );
+                            int indicatorProgress = (int) Math.round((((double) inProgressActivityList[0].getValue() / inProgressActivityList[0].getTargetValue()) * 100));
+                            ObjectAnimator.ofInt(circularProgressIndicatorSmall, "progress", indicatorProgress).setDuration(200 ^ increasedValue).start();
+                        } else {
+                            circularProgressIndicatorSmall.setProgress(0);
+                            circularProgressIndicatorSmall.setTrackThickness(3);
+
+                        }
+                        if (inProgressActivityList.length > 1) {
+                            Integer color = retrieveProgressColor(inProgressActivityList[1]);
+                            Integer trackColor = getTrackColor(color);
+                            circularProgressIndicatorMiddle.setIndicatorColor(color);
+                            circularProgressIndicatorMiddle.setTrackColor(trackColor);
+                            circularProgressIndicatorMiddle.setTrackThickness(50);
+                            int increasedValue = inProgressActivityList[0].getPreviousValue() - inProgressActivityList[0].getValue();
+                            if (increasedValue < 1) {
+                                increasedValue = 1;
+                            }
+                            int indicatorProgress = (int) Math.round((((double) inProgressActivityList[1].getValue() / inProgressActivityList[1].getTargetValue()) * 100));
+                            ObjectAnimator.ofInt(circularProgressIndicatorMiddle, "progress", indicatorProgress).setDuration(200 ^ increasedValue).start();
+
+                        } else {
+                            circularProgressIndicatorMiddle.setProgress(0);
+                            circularProgressIndicatorMiddle.setTrackThickness(2);
+
+                        }
+                        if (inProgressActivityList.length > 2) {
+                            Integer color = retrieveProgressColor(inProgressActivityList[2]);
+                            Integer trackColor = getTrackColor(color);
+                            circularProgressIndicatorBig.setIndicatorColor(color);
+                            circularProgressIndicatorBig.setTrackColor(trackColor);
+                            circularProgressIndicatorBig.setTrackThickness(50);
+                            int increasedValue = inProgressActivityList[0].getPreviousValue() - inProgressActivityList[0].getValue();
+                            if (increasedValue < 1) {
+                                increasedValue = 1;
+                            }
+                            int indicatorProgress = (int) Math.round((((double) inProgressActivityList[2].getValue() / inProgressActivityList[2].getTargetValue()) * 100));
+                            ObjectAnimator.ofInt(circularProgressIndicatorBig, "progress", indicatorProgress).setDuration(150 ^ increasedValue).start();
+                        } else {
+                            circularProgressIndicatorBig.setProgress(0);
+                            circularProgressIndicatorBig.setTrackThickness(1);
+
+                        }
+
+
+                        if (dailyActivityViews.size() > activeActivityList.length) {
+                            for (int i = activeActivityList.length; i < dailyActivityViews.size(); i++) {
+                                dailyActivityLinearLayout.removeView(dailyActivityViews.get(i));
+                                dailyActivityViews.remove(i);
+                            }
+                        }
+
+                        for (int i = 0; i < activeActivityList.length; i++) {
+                            ActivityTask task = activeActivityList[i];
+                            int displayValue = task.getValue();
+                            ActivityClass activityClass = task.getActivityClass();
+                            int id = task.getId();
+                            if (activeActivityList.length <= dailyActivityViews.size()) {
+                                dailyActivityViews.get(i).updateValue(String.valueOf(displayValue), task.isDone(), i, id, activityClass);
+                            } else {
+
+                                dailyActivityViews.add(i, new DailyActivityView(context, String.valueOf(displayValue), activityClass, id));
+                                dailyActivityLinearLayout.addView(dailyActivityViews.get(i));
+                            }
+
+                            if (task.isDone()) {
+                                View viewToMove = dailyActivityViews.get(i);
+                                dailyActivityLinearLayout.removeView(viewToMove); // Remove the view from its current position
+                                dailyActivityLinearLayout.addView(viewToMove);    // Add it to the end
+                            }
+                        }
+
+                        int childCount = dailyActivityLinearLayout.getChildCount();
+                        if (childCount > 0) {
+                            for (int i = 0; i < childCount; i++) {
+                                View view1 = dailyActivityLinearLayout.getChildAt(i);
+
+                                // Reset margins for all views
+                                resetMarginsForView(view1);
+
+                                // Apply margins based on position
+                                int leftMargin, rightMargin;
+                                if (i == 0) {
+                                    // First view
+                                    leftMargin = 50;
+                                    rightMargin = 10;
+                                } else if (i == childCount - 1) {
+                                    // Last view
+                                    leftMargin = 10;
+                                    rightMargin = 60;
+                                } else {
+                                    // Other views
+                                    leftMargin = rightMargin = 20;
+                                }
+
+                                applyMarginForView(view1, leftMargin, rightMargin);
+                            }
+                        }
+
+                        @SuppressLint("DefaultLocale") String displayPercentageText = String.format("%d/%d", activeActivityList.length - inProgressActivityList.length, activeActivityList.length);
+                        String cheers = "\uD83C\uDF8A\n";
+                        if (activeActivityList.length - inProgressActivityList.length == activeActivityList.length) {
+                            displayPercentageText = activeActivityList.length + cheers;
+                        }
+
+                        progressPercentage.setText(displayPercentageText);
+
+                    });
                 }
 
 
@@ -320,6 +328,7 @@ public class FirstFragment extends Fragment {
 
         ImageButton menu_button = view.findViewById(R.id.menu_button);
         menu_button.setOnClickListener(view12 -> drawerLayout.openDrawer(GravityCompat.START));
+
     }
 
     private void applyMarginForView(View view, int left, int right) {
@@ -366,35 +375,45 @@ public class FirstFragment extends Fragment {
         binding = null;
     }
 
+    @SuppressLint("LongLogTag")
+    @Override
+    public void onActivityAdded(String activityName) {
+        Log.d("BottomSheetDialogFragment", "Dismissed");
+        activeActivityList = dbManager.fetchActivityTasks(todayDayOfWeek).toArray(new ActivityTask[0]);
+
+    }
+
+
     private void showBottomSheetDialog() {
-        BottomSheetDialogFragment addActivityFragment = new AddActivityModalFragment();
+        BottomSheetDialogFragment addActivityFragment = new AddActivityModalFragment(todayDayOfWeek);
+        ((AddActivityModalFragment) addActivityFragment).setOnAddActivityListener(this);
         addActivityFragment.show(getParentFragmentManager(), "BSDialogFragment");
 
     }
 
-    static public List<ActivityTask> getDummyActivityTasks() {
-        List<ActivityTask> activityTasks = new ArrayList<>();
-        try {
-            String result = readFile("dummyActivityTasks.json");
-//                    Log.d("IO dummy", result);
-            JSONArray jsonArray = new JSONArray(result);
-
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObj = jsonArray.getJSONObject(i);
-                int activityClassCode = jsonObj.getInt("activityClassCode");
-                ActivityClass activityClass = ActivityClass.getClassFromInt(activityClassCode);
-                int value = jsonObj.getInt("value");
-                int targetValue = jsonObj.getInt("targetValue");
-                activityTasks.add(new ActivityTask(activityClass, value, targetValue));
-            }
-            Log.d("IO dummy", String.format("%d", activityTasks.size()));
-
-        } catch (Exception e) {
-            Log.d("IO dummy", e.toString());
-        }
-
-        return activityTasks;
-    }
+//    static public List<ActivityTask> getDummyActivityTasks() {
+//        List<ActivityTask> activityTasks = new ArrayList<>();
+//        try {
+//            String result = readFile("dummyActivityTasks.json");
+////                    Log.d("IO dummy", result);
+//            JSONArray jsonArray = new JSONArray(result);
+//
+//            for (int i = 0; i < jsonArray.length(); i++) {
+//                JSONObject jsonObj = jsonArray.getJSONObject(i);
+//                int activityClassCode = jsonObj.getInt("activityClassCode");
+//                ActivityClass activityClass = ActivityClass.getClassFromInt(activityClassCode);
+//                int value = jsonObj.getInt("value");
+//                int targetValue = jsonObj.getInt("targetValue");
+//                activityTasks.add(new ActivityTask( id, activityClass, value, targetValue));
+//            }
+//            Log.d("IO dummy", String.format("%d", activityTasks.size()));
+//
+//        } catch (Exception e) {
+//            Log.d("IO dummy", e.toString());
+//        }
+//
+//        return activityTasks;
+//    }
 
     private List<HistoryActivity> getDummyActivityHistories() {
         List<HistoryActivity> activitiesHistories = new ArrayList<>();
@@ -414,7 +433,7 @@ public class FirstFragment extends Fragment {
                     String key = keys.next();
                     int value = activitiesValues.getInt(key);
                     ActivityClass activityClass = ActivityClass.getClassFromInt(key);
-                    activityTasks.add(new ActivityTask(activityClass, value, 100));
+                    activityTasks.add(new ActivityTask(0, activityClass, value, 100));
                 }
 
                 activitiesHistories.add(new HistoryActivity(timestamp, activityTasks));
@@ -612,5 +631,7 @@ public class FirstFragment extends Fragment {
     private float dpToPx(float dp) {
         return dp * getResources().getDisplayMetrics().density;
     }
+
+
 }
 

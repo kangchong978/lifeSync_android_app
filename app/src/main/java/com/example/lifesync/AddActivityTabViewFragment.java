@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -20,6 +21,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,25 +30,37 @@ import java.util.UUID;
 
 public class AddActivityTabViewFragment extends Fragment {
 
-    private final List<ActivityTask> availableActivityList = new ArrayList<>(Arrays.asList(FirstFragment.getDummyActivityTasks().toArray(new ActivityTask[0])));
+    private int dayOfWeek;
+    //    private final List<ActivityTask> availableActivityList = new ArrayList<>(Arrays.asList(FirstFragment.getDummyActivityTasks().toArray(new ActivityTask[0])));
+    private List<ActivityTask> availableActivityList = new ArrayList<>();
 
-    static List<AddActivityItemSpinnerAdapter.SpinnerItem> spinnerItemsList = new ArrayList<>(Arrays.asList(
-            new AddActivityItemSpinnerAdapter.SpinnerItem(R.drawable.round_directions_run_24, "Steps"),
-            new AddActivityItemSpinnerAdapter.SpinnerItem(R.drawable.round_speed_24, "BMI"),
-            new AddActivityItemSpinnerAdapter.SpinnerItem(R.drawable.round_directions_24, "Distance"),
-            new AddActivityItemSpinnerAdapter.SpinnerItem(R.drawable.round_local_fire_department_24, "CaloriesBurned")
+    static List<AddActivityItemSpinnerAdapter.SpinnerItem> spinnerItemsList = new ArrayList<>(Arrays.asList(new AddActivityItemSpinnerAdapter.SpinnerItem(R.drawable.round_directions_run_24, "Steps"), new AddActivityItemSpinnerAdapter.SpinnerItem(R.drawable.round_speed_24, "BMI"), new AddActivityItemSpinnerAdapter.SpinnerItem(R.drawable.round_directions_24, "Distance"), new AddActivityItemSpinnerAdapter.SpinnerItem(R.drawable.round_local_fire_department_24, "CaloriesBurned")
             // Add more initial ActivityInfo objects as needed
     ));
     private static final String ARGUMENT_KEY = UUID.randomUUID().toString();
 
     private View view;
 
-    public static AddActivityTabViewFragment newInstance(String argument) {
-        AddActivityTabViewFragment fragment = new AddActivityTabViewFragment();
-        Bundle args = new Bundle();
-        args.putString(ARGUMENT_KEY, argument);
-        fragment.setArguments(args);
+    private DBManager dbManager;
+
+    public AddActivityTabViewFragment(int dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
+    }
+
+    public static AddActivityTabViewFragment newInstance(int dayOfWeek) {
+        AddActivityTabViewFragment fragment = new AddActivityTabViewFragment(dayOfWeek);
+//        Bundle args = new Bundle();
+//        args.putString(ARGUMENT_KEY, argument);
+//        fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        dbManager = new DBManager(getContext());
+        dbManager.open();
+        availableActivityList = dbManager.fetchActivityTasks(dayOfWeek);
     }
 
     @Nullable
@@ -55,8 +69,8 @@ public class AddActivityTabViewFragment extends Fragment {
         // Inflate the layout for this fragment
         // Bundle args = getArguments();
         // if (args != null) {
-            // String argument = args.getString(ARGUMENT_KEY);
-            // Now you can use the 'argument' in your fragment
+        // String argument = args.getString(ARGUMENT_KEY);
+        // Now you can use the 'argument' in your fragment
         // }
         return inflater.inflate(R.layout.add_activity_tab_view, container, false);
     }
@@ -67,10 +81,14 @@ public class AddActivityTabViewFragment extends Fragment {
         this.view = view;
         LinearLayout addTaskButton = view.findViewById(R.id.add_new_activity_button);
         addTaskButton.setOnClickListener(v -> {
-            ActivityTask newTask = new ActivityTask(ActivityClass.Steps, 0, 0);
-            availableActivityList.add(newTask);
+            // TODO
+//            ActivityTask newTask = new ActivityTask(ActivityClass.Steps, 0, 0);
+//            availableActivityList.add(newTask);
 
+
+            dbManager.insertActivityTask(dayOfWeek, "steps", 100, true);
             // Create a new row for the new task and add it to the UI
+            availableActivityList = dbManager.fetchActivityTasks(dayOfWeek);
             buildTaskListViewUI(true);
 
         });
@@ -94,10 +112,7 @@ public class AddActivityTabViewFragment extends Fragment {
             LinearLayout parentLinearLayout = new LinearLayout(requireContext());
             parentLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
 
-            LinearLayout.LayoutParams layoutParamsParent = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-            );
+            LinearLayout.LayoutParams layoutParamsParent = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             layoutParamsParent.setMargins(0, 0, 0, 50);
 
             layoutParamsParent.gravity = Gravity.CENTER_VERTICAL; // Center vertically
@@ -114,18 +129,18 @@ public class AddActivityTabViewFragment extends Fragment {
             removeIcon.setOnClickListener(v -> {
                 // Remove the item from availableActivityList
                 availableActivityList.remove(activityTask);
-
                 // Remove the corresponding view from the parentLayout
                 parentLayout.removeView(parentLinearLayout);
+
+                dbManager.removeActivityTask( activityTask.getId());
+
             });
             parentLinearLayout.addView(removeIcon);
 
             // Create a new LinearLayout for each row
             LinearLayout linearLayout = new LinearLayout(requireContext());
             // Set margins for the LinearLayout using LayoutParams
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                    MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-            );
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             linearLayout.setBackgroundResource(R.drawable.add_activity_item);
             linearLayout.setPadding(10, 10, 20, 10);
             linearLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -133,20 +148,30 @@ public class AddActivityTabViewFragment extends Fragment {
             linearLayout.setLayoutParams(layoutParams);
 //            // Create a Spinner and set its adapter
             Spinner spinner = new Spinner(requireContext());
-            spinner.setLayoutParams(new ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT, MATCH_PARENT
-            ));
+            spinner.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, MATCH_PARENT));
             AddActivityItemSpinnerAdapter adapter = new AddActivityItemSpinnerAdapter(view.getContext(), spinnerItemsList);
             spinner.setAdapter(adapter);
+            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                    dbManager.updateActivityTask(activityTask.getId(), ActivityClass.getClassFromInt(position).toString());
 
-            if (activityType.getInt() >= 0 && activityType.getInt() < spinnerItemsList.size())
-                spinner.setSelection(activityType.getInt());
+                    // Handle the selected item
+//                    String selectedItem = parentView.getItemAtPosition(position).toString();
+//                    Toast.makeText(getApplicationContext(), "Selected: " + selectedItem, Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parentView) {
+                    // Do nothing here
+                }
+            });
+            if (activityType.toInt() >= 0 && activityType.toInt() < spinnerItemsList.size())
+                spinner.setSelection(activityType.toInt());
 //
 //            // Create an EditText
             EditText editText = new EditText(requireContext());
-            editText.setLayoutParams(new ViewGroup.LayoutParams(
-                    MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-            ));
+            editText.setLayoutParams(new ViewGroup.LayoutParams(MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             editText.setSingleLine(true);
             editText.setHint("Type here");
 
@@ -167,6 +192,10 @@ public class AddActivityTabViewFragment extends Fragment {
                     if (imm != null) {
                         imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
                     }
+
+                    // update to db
+
+                    dbManager.updateActivityTask( activityTask.getId(),activityTask.getActivityClass().toString(), Integer.parseInt(editText.getText().toString()));
 
                     return true; // Return true to indicate that the event has been consumed
                 }
