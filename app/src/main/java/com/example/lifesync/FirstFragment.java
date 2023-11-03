@@ -1,5 +1,7 @@
 package com.example.lifesync;
 
+import static com.example.lifesync.ActivityClass.Steps;
+
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
@@ -24,6 +26,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -45,6 +48,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -63,6 +67,7 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
     private FragmentFirstBinding binding;
     private static Context context;
     static String[] viewActivityOptions = {"7 days", "30 days", "365 days", "All"};
+    static String[] viewActivityClassOptions = {"Steps", "Distance", "BMI", "Calories"};
     static String greeting = "Welcome";
     static String username = "Sophia Muller";
 
@@ -115,7 +120,35 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
             updateFragmentUi(stepCountService.getSensorData()); // initial
             stepCountService.setStepCountCallback((e) -> {
                 Log.d("Value callback", String.valueOf(e));
+
+                int previousDayOfWeek = todayDayOfWeek;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    todayDayOfWeek = LocalDate.now().getDayOfWeek().getValue();
+                    todayDayOfWeek = (todayDayOfWeek >= 7) ? 0 : todayDayOfWeek;
+
+                }
+                if (previousDayOfWeek != todayDayOfWeek) {
+                    activeActivityList = dbManager.fetchActivityTasks(todayDayOfWeek).toArray(new ActivityTask[0]);
+                    String idsString = "";
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        List<Integer> _activityTasksIds = dbManager.fetchActivityTasks(todayDayOfWeek).stream().map(a -> a.getId()).collect(Collectors.toList());
+
+                        for (int i = 0; i < _activityTasksIds.size(); i++) {
+                            idsString += _activityTasksIds.get(i) + ((i < _activityTasksIds.size() - 1) ? "," : "");
+                        }
+                    }
+                    SensorData sensorData = e;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        dbManager.insertActivityRecord(sensorData.steps, sensorData.steps, sensorData.bmi, sensorData.distance, sensorData.calories, (int) LocalDate.now().atStartOfDay().toEpochSecond(ZoneOffset.UTC), idsString);
+                    }
+                    stepCountService.reset();
+                }
+
                 updateFragmentUi(e);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    setMyActivityGraphView();
+                }
+
             });
             isServiceBound = true;
         }
@@ -128,6 +161,8 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
         }
     };
     private boolean redirectToOnboarding;
+    private int spinnerOptionId = 0;
+    private int classSpinnerOptionId = 0;
 
     @Override
     public void onDestroy() {
@@ -147,6 +182,7 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
         mainActivity.bindStepService(serviceConnection);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             todayDayOfWeek = LocalDate.now().getDayOfWeek().getValue();
+            todayDayOfWeek = (todayDayOfWeek >= 7) ? 0 : todayDayOfWeek;
         }
         dbManager = new DBManager(getContext());
         dbManager.open();
@@ -191,10 +227,30 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
         ArrayAdapter<String> adapter = new ArrayAdapter<>(context, R.layout.activity_spinner_item, R.id.optionName, viewActivityOptions);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 //                Log.d("Spinner", String.format("%d", id));
-                setMyActivityGraphView(((int) id));
+                spinnerOptionId = (int) id;
+                setMyActivityGraphView();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // your code here
+            }
+
+        });
+
+        Spinner classSpinner = (Spinner) view.findViewById(R.id.activity_class_spinner);
+        ArrayAdapter<String> classAdapter = new ArrayAdapter<>(context, R.layout.activity_spinner_item, R.id.optionName, viewActivityClassOptions);
+        classSpinner.setAdapter(classAdapter);
+        classSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long a) {
+                classSpinnerOptionId = (int) a;
+                setMyActivityGraphView();
             }
 
             @Override
@@ -453,37 +509,6 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
 
     }
 
-    private List<HistoryActivity> getDummyActivityHistories() {
-        List<HistoryActivity> activitiesHistories = new ArrayList<>();
-        try {
-            String result = readFile("dummyActivityHistories.json");
-            JSONArray jsonArray = new JSONArray(result);
-
-            for (int i = 0; i < jsonArray.length(); i++) {
-                List<ActivityTask> activityTasks = new ArrayList<>();
-
-
-                JSONObject jsonObj = jsonArray.getJSONObject(i);
-                int timestamp = jsonObj.getInt("timestamp");
-                JSONObject activitiesValues = jsonObj.getJSONObject("activitiesValues");
-                Iterator<String> keys = activitiesValues.keys();
-                while (keys.hasNext()) {
-                    String key = keys.next();
-                    int value = activitiesValues.getInt(key);
-                    ActivityClass activityClass = ActivityClass.getClassFromInt(key);
-                    activityTasks.add(new ActivityTask(0, activityClass, value, 100));
-                }
-
-                activitiesHistories.add(new HistoryActivity(timestamp, activityTasks));
-            }
-            Log.d("IO dummy A", String.format("%d", activitiesHistories.size()));
-
-        } catch (Exception e) {
-            Log.d("IO dummy A", e.toString());
-        }
-
-        return activitiesHistories;
-    }
 
     private static String readFile(String fileName) throws IOException {
 
@@ -500,10 +525,12 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
 
     }
 
-    private void setMyActivityGraphView(int spinnerOptionId) {
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void setMyActivityGraphView() {
         try {
 
-            List<HistoryActivity> activityHistoriesList = getDummyActivityHistories();
+            List<HistoryActivity> activityHistoriesList = dbManager.fetchActivityRecords();
+
 
             Calendar currentCalendar = Calendar.getInstance();
             currentCalendar.setFirstDayOfWeek(Calendar.SUNDAY);
@@ -511,11 +538,13 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
             currentCalendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
             currentCalendar.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
 
-
+            Calendar calendar = Calendar.getInstance();
+            Date startDate;
+            Date currentDate;
             switch (spinnerOptionId) {
                 case 0:
                     // Filter for today and the 7 days before today
-                    Calendar calendar = Calendar.getInstance();
+
                     calendar.setTime(new Date());
                     calendar.add(Calendar.DAY_OF_YEAR, 0); // Move to tomorrow
                     Date endOfDay = calendar.getTime(); // Set to end of today
@@ -531,34 +560,36 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
                     }
                     break;
                 case 1:
-                    // Filter for the current month (30 days)
-                    Calendar currentMonthCalendar = Calendar.getInstance();
-                    currentMonthCalendar.setTime(new Date());
-                    currentMonthCalendar.set(Calendar.DAY_OF_MONTH, 0); // Set to the first day of the month
-                    Date startOfMonth = currentMonthCalendar.getTime();
-                    currentMonthCalendar.add(Calendar.DAY_OF_MONTH, 30); // Move 30 days ahead
-                    Date endOfMonth = currentMonthCalendar.getTime();
+// Calculate the start date (30 days ago from the current date)
 
+                    calendar.setTime(new Date());
+                    calendar.add(Calendar.DAY_OF_MONTH, -30); // Subtract 30 days
+
+                    startDate = calendar.getTime();
+                    currentDate = currentCalendar.getTime();
+
+// Filter the activityHistoriesList for items within the last 30 days
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         activityHistoriesList = activityHistoriesList.stream().filter(a -> {
                             @SuppressLint("DefaultLocale") Date expiry = new Date(Long.parseLong(String.format("%d", a.getTimeStamp())) * 1000);
-                            return expiry.after(startOfMonth) && expiry.before(endOfMonth);
+                            return expiry.after(startDate) && expiry.before(currentDate);
                         }).collect(Collectors.toList());
                     }
                     break;
                 case 2:
-                    // Filter for the current year (365 days)
-                    Calendar currentYearCalendar = Calendar.getInstance();
-                    currentYearCalendar.setTime(new Date());
-                    currentYearCalendar.set(Calendar.DAY_OF_YEAR, 0); // Set to the first day of the year
-                    Date startOfYear = currentYearCalendar.getTime();
-                    currentYearCalendar.add(Calendar.DAY_OF_YEAR, 365); // Move 365 days ahead
-                    Date endOfYear = currentYearCalendar.getTime();
+                    // Calculate the start date (365 days ago from the current date)
 
+                    calendar.setTime(new Date());
+                    calendar.add(Calendar.DAY_OF_YEAR, -365); // Subtract 365 days
+
+                    startDate = calendar.getTime();
+                    currentDate = currentCalendar.getTime();
+
+// Filter the activityHistoriesList for items within the last 365 days
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         activityHistoriesList = activityHistoriesList.stream().filter(a -> {
                             @SuppressLint("DefaultLocale") Date expiry = new Date(Long.parseLong(String.format("%d", a.getTimeStamp())) * 1000);
-                            return expiry.after(startOfYear) && expiry.before(endOfYear);
+                            return expiry.after(startDate) && expiry.before(currentDate);
                         }).collect(Collectors.toList());
                     }
                     break;
@@ -580,7 +611,7 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
                 HistoryActivity activity = activityHistoriesList.get(i);
                 @SuppressLint("DefaultLocale") Date expiry = new Date(Long.parseLong(String.format("%d", activity.getTimeStamp())) * 1000);
 
-                List<ActivityTask> activityTaskList = activity.getActivityTaskList();
+                List<ActivityTask> activityTaskList = activity.getActivityTaskList().stream().filter((e) -> e.getActivityClass() == ActivityClass.getClassFromInt(classSpinnerOptionId)).collect(Collectors.toList());
                 for (int j = 0; j < activityTaskList.size(); j++) {
                     String name = "";
                     Locale locale;
@@ -614,7 +645,7 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
                     }
 
 
-                    switch (activityTaskList.get(j).getActivityClass()) {
+                    switch (ActivityClass.getClassFromInt(classSpinnerOptionId)) {
                         case Distance:
                             dataPointsDistance.add(new DataPoint(activityTaskList.get(j).getValue(), name));
                             break;
@@ -639,6 +670,8 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
                 }
             }
 
+//            List<List<DataPoint>> dataPoints = new ArrayList<>(Arrays.asList(  dataPointsSteps ));
+//            int totalDataPoints =  dataPointsSteps.size();
 
             List<List<DataPoint>> dataPoints = new ArrayList<>(Arrays.asList(dataPointsBMI, dataPointsDistance, dataPointsSteps, dataPointsCaloriesBurned));
             // Calculate the total width needed based on the number of data points and their spacing
@@ -651,6 +684,7 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
                 graphView.requestLayout(); // Request layout update to reflect the new width
             }
 
+            graphView.resetData();
             // Set the data to the graph view
             graphView.setData(dataPoints);
 

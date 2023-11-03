@@ -77,7 +77,20 @@ public class LineGraphView extends View {
         invalidate(); // Trigger a redraw
     }
 
-
+    public void resetData() {
+        if (data != null) {
+            data.clear();
+        }
+        if (names != null) {
+            names.clear();
+        }
+        // Clear the cached bitmap
+        if (cachedBitmap != null) {
+            cachedBitmap.recycle();
+            cachedBitmap = null;
+        }
+        invalidate(); // Trigger a redraw
+    }
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);

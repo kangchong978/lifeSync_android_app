@@ -38,4 +38,8 @@ public class StepDetector {
     public int getStepCount() {
         return stepCount;
     }
+
+    public void reset() {
+        stepCount = 0;
+    }
 }

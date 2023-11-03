@@ -34,7 +34,7 @@ public class AddActivityTabViewFragment extends Fragment {
     //    private final List<ActivityTask> availableActivityList = new ArrayList<>(Arrays.asList(FirstFragment.getDummyActivityTasks().toArray(new ActivityTask[0])));
     private List<ActivityTask> availableActivityList = new ArrayList<>();
 
-    static List<AddActivityItemSpinnerAdapter.SpinnerItem> spinnerItemsList = new ArrayList<>(Arrays.asList(new AddActivityItemSpinnerAdapter.SpinnerItem(R.drawable.round_directions_run_24, "Steps"), new AddActivityItemSpinnerAdapter.SpinnerItem(R.drawable.round_speed_24, "BMI"), new AddActivityItemSpinnerAdapter.SpinnerItem(R.drawable.round_directions_24, "Distance"), new AddActivityItemSpinnerAdapter.SpinnerItem(R.drawable.round_local_fire_department_24, "CaloriesBurned")
+    static List<AddActivityItemSpinnerAdapter.SpinnerItem> spinnerItemsList = new ArrayList<>(Arrays.asList(new AddActivityItemSpinnerAdapter.SpinnerItem(R.drawable.round_directions_run_24, "Steps"), new AddActivityItemSpinnerAdapter.SpinnerItem(R.drawable.round_directions_24, "Distance"), new AddActivityItemSpinnerAdapter.SpinnerItem(R.drawable.round_speed_24, "BMI"), new AddActivityItemSpinnerAdapter.SpinnerItem(R.drawable.round_local_fire_department_24, "CaloriesBurned")
             // Add more initial ActivityInfo objects as needed
     ));
     private static final String ARGUMENT_KEY = UUID.randomUUID().toString();

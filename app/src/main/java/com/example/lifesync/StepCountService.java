@@ -21,6 +21,8 @@ import android.widget.Toast;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
+import java.util.Calendar;
+
 public class StepCountService extends Service {
     private static final String CHANNEL_ID = "0";
     private static final int NOTIFICATION_ID = 1;
@@ -30,6 +32,7 @@ public class StepCountService extends Service {
     private int steps = 0;
 
     private StepCountCallback stepCountCallback;
+    private int lastRecordedDay = -1; // Initialize with an invalid value
 
 
     private final IBinder mBinder = new UiBinder();
@@ -86,7 +89,13 @@ public class StepCountService extends Service {
 
             stepDetector.processAccelerometerData(x, y, z);
             int newSteps = stepDetector.getStepCount();
+            // Get the current day using Calendar class
+
+
+            // Check if the current day is different from the last recorded day
+
             if (steps < newSteps) {
+
                 steps = newSteps;
                 double stepLengthMeters = 0.7; // Example average step length in meters
                 double distance = steps * stepLengthMeters;
@@ -94,6 +103,8 @@ public class StepCountService extends Service {
                 if (stepCountCallback != null) {
                     stepCountCallback.onStepCountChanged(new SensorData(steps, 0, distance, 0));
                 }
+
+
             }
         }
 
@@ -106,7 +117,7 @@ public class StepCountService extends Service {
     public SensorData getSensorData() {
         double stepLengthMeters = 0.7; // Example average step length in meters
         double distance = steps * stepLengthMeters;
-        return  new SensorData(steps, 0, distance, 0);
+        return new SensorData(steps, 0, distance, 0);
     }
 
     private Notification createNotification() {
@@ -122,6 +133,11 @@ public class StepCountService extends Service {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 
         return new NotificationCompat.Builder(this, CHANNEL_ID).setContentTitle("Synchronizing").setContentText("Your activity is being recorded").setSmallIcon(R.drawable.ic_launcher_foreground).setContentIntent(pendingIntent).build();
+    }
+
+    public void reset() {
+        steps = 0;
+        stepDetector.reset();
     }
 }
 

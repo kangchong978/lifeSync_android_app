@@ -55,7 +55,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + RAW_SENSOR_VALUE + " INTEGER, "
             + STEPS_VALUE + " INTEGER, "
             + BMI_VALUE + " INTEGER, "
-            + DISTANCE_VALUE + " INTEGER, "
+            + DISTANCE_VALUE + " DOUBLE, "
             + CALORIES_BURNED_VALUE + " INTEGER, "
             + TIMESTAMP + " INTEGER, "
             + ACTIVITY_TASK_IDS + " TEXT "

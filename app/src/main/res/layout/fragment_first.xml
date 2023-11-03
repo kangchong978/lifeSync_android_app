@@ -220,6 +220,13 @@
                     tools:ignore="RelativeOverlap" />
 
                 <Spinner
+                    android:id="@+id/activity_class_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toLeftOf="@+id/activity_spinner"
+                    android:background="@drawable/bg_spinner" />
+
+                <Spinner
                     android:id="@+id/activity_spinner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
