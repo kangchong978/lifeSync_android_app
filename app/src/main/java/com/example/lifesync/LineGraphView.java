@@ -8,6 +8,9 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.ColorRes;
+import androidx.core.content.ContextCompat;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,6 +97,26 @@ public class LineGraphView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        // Check if there are no data points or not enough data points
+        if (data == null || data.isEmpty() || data.get(0).size() < 2) {
+            // Draw the message in the middle of the view
+            String message = "at least 2 days of record to display";
+            Paint messagePaint = new Paint();
+            messagePaint.setColor( ContextCompat.getColor(this.getContext(), R.color.greyEB));
+            messagePaint.setTextSize(36); // Set the text size
+
+            float textWidth = messagePaint.measureText(message);
+            float x = (getWidth() - textWidth) / 2; // Center the text horizontally
+
+            // Center the text vertically
+            Paint.FontMetrics fontMetrics = messagePaint.getFontMetrics();
+            float textHeight = fontMetrics.bottom - fontMetrics.top;
+            float y = (getHeight() - textHeight) / 2 + textHeight - fontMetrics.bottom;
+
+            canvas.drawText(message, x, y, messagePaint);
+            return;
+        }
+
 
         // Check if the cached bitmap is null or needs to be recreated
         if (cachedBitmap == null || cachedBitmap.getWidth() != getWidth() || cachedBitmap.getHeight() != getHeight()) {

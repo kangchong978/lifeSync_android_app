@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -697,6 +698,12 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
             if (graphView.getLayoutParams() != null && totalDataPoints > 0) {
                 graphView.getLayoutParams().width = (int) requiredWidth;
                 graphView.requestLayout(); // Request layout update to reflect the new width
+            }else if(graphView.getLayoutParams() != null){
+                DisplayMetrics displayMetrics = new DisplayMetrics();
+                getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+                int screenWidth = displayMetrics.widthPixels;
+                graphView.getLayoutParams().width = screenWidth - 120;
+                graphView.requestLayout();
             }
 
             graphView.resetData();

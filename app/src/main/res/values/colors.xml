@@ -11,4 +11,14 @@
     <color name="greyF6">#FFF6F6F6</color>
     <color name="greyEB">#FFEBEBEB</color>
     <color name="transparent">#00FFFFFF</color>
+    <color name="color1">#582f0e</color>
+    <color name="color2">#7f4f24</color>
+    <color name="color3">#936639</color>
+    <color name="color4">#a68a64</color>
+    <color name="color5">#b6ad90</color>
+    <color name="color6">#c2c5aa</color>
+    <color name="color7">#a4ac86</color>
+    <color name="color8">#656d4a</color>
+    <color name="color9">#414833</color>
+    <color name="color10">#333d29</color>
 </resources>
