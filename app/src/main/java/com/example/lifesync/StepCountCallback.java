@@ -9,9 +9,9 @@ class SensorData {
     final int steps;
     final int bmi;
     final double distance;
-    final int calories;
+    final double calories;
 
-    SensorData(int steps, int bmi, double distance, int calories) {
+    SensorData(int steps, int bmi, double distance, double calories) {
         this.steps = steps;
         this.bmi = bmi;
         this.distance = distance;

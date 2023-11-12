@@ -98,13 +98,13 @@ public class StepCountService extends Service {
 
                 steps = newSteps;
                 double stepLengthMeters = 0.7; // Example average step length in meters
+                double caloriesPerStep = 0.04; // Example average calories burned per step
                 double distance = steps * stepLengthMeters;
+                double calories = steps * caloriesPerStep;
                 Log.d("Debugger", String.format("Steps： %d", steps));
                 if (stepCountCallback != null) {
-                    stepCountCallback.onStepCountChanged(new SensorData(steps, 0, distance, 0));
+                    stepCountCallback.onStepCountChanged(new SensorData(steps, 0, distance, calories));
                 }
-
-
             }
         }
 
@@ -116,8 +116,10 @@ public class StepCountService extends Service {
 
     public SensorData getSensorData() {
         double stepLengthMeters = 0.7; // Example average step length in meters
+        double caloriesPerStep = 0.04; // Example average calories burned per step
         double distance = steps * stepLengthMeters;
-        return new SensorData(steps, 0, distance, 0);
+        double calories = steps * caloriesPerStep;
+        return new SensorData(steps, 0, distance, calories);
     }
 
     private Notification createNotification() {
