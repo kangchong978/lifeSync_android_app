@@ -16,7 +16,7 @@ import java.util.List;
 
 public class LineGraphView extends View {
     private Bitmap cachedBitmap;
-    private List<List<Integer>> data;
+    private List<List<Double>> data;
     private final Paint paint;
     private final Paint pointPaint;
     private List<List<String>> names; // List of names corresponding to each data point
@@ -65,7 +65,7 @@ public class LineGraphView extends View {
             }
 
             // Get the data and names for this line
-            List<Integer> lineData = new ArrayList<>();
+            List<Double> lineData = new ArrayList<>();
             List<String> lineNames = new ArrayList<>();
 
             for (DataPoint dataPoint : dataPoints) {
@@ -94,6 +94,7 @@ public class LineGraphView extends View {
         }
         invalidate(); // Trigger a redraw
     }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -102,7 +103,7 @@ public class LineGraphView extends View {
             // Draw the message in the middle of the view
             String message = "at least 2 days of record to display";
             Paint messagePaint = new Paint();
-            messagePaint.setColor( ContextCompat.getColor(this.getContext(), R.color.greyEB));
+            messagePaint.setColor(ContextCompat.getColor(this.getContext(), R.color.greyEB));
             messagePaint.setTextSize(36); // Set the text size
 
             float textWidth = messagePaint.measureText(message);
@@ -135,7 +136,7 @@ public class LineGraphView extends View {
     }
 
 
-    private void drawGraph(Canvas canvas){
+    private void drawGraph(Canvas canvas) {
         if (data == null || data.isEmpty() || names == null || names.isEmpty()) {
             return; // No data to draw
         }
@@ -148,7 +149,7 @@ public class LineGraphView extends View {
 
         float height = getHeight();
         float stepX = (getWidth() - dpToPx(40)) / (data.get(0).size() - 1); // Adjusted spacing
-        float stepY = (height - dpToPx(40)) / getMaxValue(); // Adjust for 20dp margin on each side
+        float stepY = (float) ((height - dpToPx(40)) / getMaxValue()); // Adjust for 20dp margin on each side
 
         // Adjust the canvas based on the horizontal scroll position
         float scrollX = 0;
@@ -158,18 +159,18 @@ public class LineGraphView extends View {
         textPaint.setTextSize(24); // Set the text size to 24
 
         for (int lineIndex = 0; lineIndex < data.size(); lineIndex++) {
-            List<Integer> lineData = data.get(lineIndex);
+            List<Double> lineData = data.get(lineIndex);
             List<String> lineNames = names.get(lineIndex);
 
             Paint linePaint = new Paint(paint); // Create a copy of the paint for each line
             linePaint.setColor(getLineColor(lineIndex)); // Set a different color for each line
 
             float lastX = dpToPx(20); // Start from 20dp on the left
-            float lastY = height - dpToPx(20) - (lineData.get(0) * stepY); // Start from 20dp on the bottom
+            float lastY = (float) (height - dpToPx(20) - (lineData.get(0) * stepY)); // Start from 20dp on the bottom
 
             for (int i = 0; i < lineData.size(); i++) {
                 float x2 = dpToPx(20) + i * stepX; // Adjusted spacing
-                float y2 = height - dpToPx(20) - (lineData.get(i) * stepY); // Start from 20dp on the bottom
+                float y2 = (float) (height - dpToPx(20) - (lineData.get(i) * stepY)); // Start from 20dp on the bottom
 
                 linePaint.setStrokeWidth(2);
                 // Draw a vertical line from the data point to the name label
@@ -187,7 +188,7 @@ public class LineGraphView extends View {
             // Draw the circle points and text labels after drawing the lines
             for (int i = 0; i < lineData.size(); i++) {
                 float x2 = dpToPx(20) + i * stepX; // Adjusted spacing
-                float y2 = height - dpToPx(20) - (lineData.get(i) * stepY);
+                float y2 = (float) (height - dpToPx(20) - (lineData.get(i) * stepY));
 
                 pointPaint.setColor(getLineColor(lineIndex));
                 // Draw a circle point at the current data point with a smaller radius (e.g., 10)
@@ -209,15 +210,16 @@ public class LineGraphView extends View {
         }
         canvas.translate(scrollX, 0);
     }
+
     // Add a method to convert dp to pixels
     private float dpToPx(float dp) {
         return dp * getResources().getDisplayMetrics().density;
     }
 
-    private int getMaxValue() {
-        int max = Integer.MIN_VALUE;
-        for (List<Integer> lineData : data) {
-            for (int value : lineData) {
+    private Double getMaxValue() {
+        Double max = Double.MIN_VALUE;
+        for (List<Double> lineData : data) {
+            for (double value : lineData) {
                 if (value > max) {
                     max = value;
                 }

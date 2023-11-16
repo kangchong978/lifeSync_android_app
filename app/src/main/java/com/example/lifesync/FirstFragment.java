@@ -298,9 +298,10 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
             NavController navController = navHostFragment.getNavController();
             Bundle bundle = new Bundle();
             bundle.putString("previousName", userInfo.name);
-            bundle.putInt("previousHeight", userInfo.height);
-            bundle.putInt("previousWeight", userInfo.weight);
+            bundle.putDouble("previousHeight", userInfo.height);
+            bundle.putDouble("previousWeight", userInfo.weight);
             bundle.putInt("previousAge", userInfo.age);
+            bundle.putString("previousGender", userInfo.gender);
             navController.navigate(R.id.OnBoardingFragment, bundle);
         });
 
@@ -314,7 +315,7 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
                     activeActivityList[i].setPreviousValue(activeActivityList[i].getValue());
                 }
 
-                int value = sensorData.steps;
+                double value = sensorData.steps;
                 // process data
                 switch (activeActivityList[i].getActivityClass()) {
 
@@ -323,7 +324,7 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
                     case Steps:
                         break;
                     case Distance:
-                        value = (int) sensorData.distance;
+                        value = sensorData.distance;
                         break;
                     case BMI:
                         value = sensorData.bmi;
@@ -349,7 +350,7 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
                     circularProgressIndicatorSmall.setIndicatorColor(color);
                     circularProgressIndicatorSmall.setTrackColor(trackColor);
                     circularProgressIndicatorSmall.setTrackThickness(50);
-                    int increasedValue = inProgressActivityList[0].getPreviousValue() - inProgressActivityList[0].getValue();
+                    int increasedValue = (int) (inProgressActivityList[0].getPreviousValue() - inProgressActivityList[0].getValue());
                     if (increasedValue < 1) {
                         increasedValue = 1;
                     }
@@ -368,7 +369,7 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
                     circularProgressIndicatorMiddle.setIndicatorColor(color);
                     circularProgressIndicatorMiddle.setTrackColor(trackColor);
                     circularProgressIndicatorMiddle.setTrackThickness(50);
-                    int increasedValue = inProgressActivityList[0].getPreviousValue() - inProgressActivityList[0].getValue();
+                    int increasedValue = (int) (inProgressActivityList[0].getPreviousValue() - inProgressActivityList[0].getValue());
                     if (increasedValue < 1) {
                         increasedValue = 1;
                     }
@@ -386,7 +387,7 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
                     circularProgressIndicatorBig.setIndicatorColor(color);
                     circularProgressIndicatorBig.setTrackColor(trackColor);
                     circularProgressIndicatorBig.setTrackThickness(50);
-                    int increasedValue = inProgressActivityList[0].getPreviousValue() - inProgressActivityList[0].getValue();
+                    int increasedValue = (int) (inProgressActivityList[0].getPreviousValue() - inProgressActivityList[0].getValue());
                     if (increasedValue < 1) {
                         increasedValue = 1;
                     }
@@ -408,11 +409,15 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
 
                 for (int i = 0; i < activeActivityList.length; i++) {
                     ActivityTask task = activeActivityList[i];
-                    int displayValue = task.getValue();
+                    double displayValue = task.getValue();
+                    String displayString =  String.valueOf(displayValue);
+                    if(task.getActivityClass() == Steps){
+                        displayString = String.valueOf(((int) displayValue));
+                    }
                     ActivityClass activityClass = task.getActivityClass();
                     int id = task.getId();
                     if (activeActivityList.length <= dailyActivityViews.size()) {
-                        dailyActivityViews.get(i).updateValue(String.valueOf(displayValue), task.isDone(), i, id, activityClass);
+                        dailyActivityViews.get(i).updateValue( displayString, task.isDone(), i, id, activityClass);
                     } else {
 
                         dailyActivityViews.add(i, new DailyActivityView(context, String.valueOf(displayValue), activityClass, id));
@@ -698,7 +703,7 @@ public class FirstFragment extends Fragment implements AddActivityModalFragment.
             if (graphView.getLayoutParams() != null && totalDataPoints > 0) {
                 graphView.getLayoutParams().width = (int) requiredWidth;
                 graphView.requestLayout(); // Request layout update to reflect the new width
-            }else if(graphView.getLayoutParams() != null){
+            } else if (graphView.getLayoutParams() != null) {
                 DisplayMetrics displayMetrics = new DisplayMetrics();
                 getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
                 int screenWidth = displayMetrics.widthPixels;

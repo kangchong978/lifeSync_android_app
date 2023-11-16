@@ -32,6 +32,15 @@
             android:visibility="gone" />
 
         <TextView
+            android:id="@+id/onboarding_gender_title_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
+            android:text="What`s your gender ?"
+            android:textSize="30sp"
+            android:visibility="gone" />
+
+        <TextView
             android:id="@+id/onboarding_height_title_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -87,12 +96,48 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
             android:hint="@string/type_your_name_here"
+            android:importantForAutofill="no"
             android:inputType="text"
             android:maxLines="1"
             android:textColorHint="@color/grey"
             android:textSize="20sp"
-            android:visibility="gone"
-            android:importantForAutofill="no" />
+            android:visibility="gone" />
+
+        <RadioGroup
+            android:id="@+id/onboarding_gender_radioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <RadioButton
+                android:id="@+id/radioMale"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:checked="false"
+                android:text="  Male"
+                android:textColor="@color/grey"
+                android:textSize="20dp" />
+
+            <RadioButton
+                android:id="@+id/radioFemale"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:checked="false"
+                android:text="  Female"
+                android:textColor="@color/grey"
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/onboarding_gender_radioGroup_errorText_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="please choose your gender first"
+                android:textColor="@color/color1"
+                android:visibility="gone"></TextView>
+        </RadioGroup>
+
 
         <EditText
             android:id="@+id/onboarding_height_edittext"
@@ -100,13 +145,13 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
             android:hint="@string/type_your_height_here"
+            android:importantForAutofill="no"
             android:inputType="text"
             android:maxLines="1"
             android:textColorHint="@color/grey"
             android:textSize="20sp"
             android:visibility="gone"
-            tools:ignore="TextFields"
-            android:importantForAutofill="no" />
+            tools:ignore="TextFields" />
 
         <EditText
             android:id="@+id/onboarding_weight_edittext"
@@ -114,12 +159,12 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
             android:hint="@string/type_your_weight_here"
+            android:importantForAutofill="no"
             android:inputType="text"
             android:maxLines="1"
             android:textColorHint="@color/grey"
             android:textSize="20sp"
             android:visibility="gone"
-            android:importantForAutofill="no"
             tools:ignore="TextFields" />
 
         <EditText
@@ -128,12 +173,12 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
             android:hint="@string/type_your_age_here"
+            android:importantForAutofill="no"
             android:inputType="text"
             android:maxLines="1"
             android:textColorHint="@color/grey"
             android:textSize="20sp"
-            android:visibility="gone"
-            android:importantForAutofill="no" />
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/onboarding_congrats_subtitle_textview"

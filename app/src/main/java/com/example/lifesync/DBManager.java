@@ -42,16 +42,17 @@ public class DBManager {
         database.insert(DatabaseHelper.ACTIVITY_TASKS_TABLE_NAME, null, contentValue);
     }
 
-    public void insertUserInfo(String name, int weight, int height, int age) {
+    public void insertUserInfo(String name, double weight, double height, int age, String gender) {
         ContentValues contentValue = new ContentValues();
         contentValue.put(DatabaseHelper.NAME, name);
         contentValue.put(DatabaseHelper.WEIGHT, weight);
         contentValue.put(DatabaseHelper.HEIGHT, height);
         contentValue.put(DatabaseHelper.AGE, age);
+        contentValue.put(DatabaseHelper.GENDER, gender);
         database.insert(DatabaseHelper.USER_INFO_TABLE_NAME, null, contentValue);
     }
 
-    public void insertActivityRecord(int raw, int steps, int bmi, double distance, int calories, int timestamp, String taskIds) {
+    public void insertActivityRecord(int raw, int steps, double bmi, double distance, double calories, int timestamp, String taskIds) {
         ContentValues contentValue = new ContentValues();
         contentValue.put(DatabaseHelper.RAW_SENSOR_VALUE, raw);
         contentValue.put(DatabaseHelper.STEPS_VALUE, steps);
@@ -112,7 +113,7 @@ public class DBManager {
     }
 
     public UserInfo fetchUserInfo() {
-        String[] columns = new String[]{DatabaseHelper.ID, DatabaseHelper.NAME, DatabaseHelper.WEIGHT, DatabaseHelper.HEIGHT, DatabaseHelper.AGE};
+        String[] columns = new String[]{DatabaseHelper.ID, DatabaseHelper.NAME, DatabaseHelper.WEIGHT, DatabaseHelper.HEIGHT, DatabaseHelper.AGE, DatabaseHelper.GENDER};
         Cursor cursor = database.query(
                 DatabaseHelper.USER_INFO_TABLE_NAME,
                 columns,
@@ -129,11 +130,12 @@ public class DBManager {
         if (cursor != null && cursor.moveToFirst()) {
             @SuppressLint("Range") int id = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.ID));
             @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(DatabaseHelper.NAME));
-            @SuppressLint("Range") int weight = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.WEIGHT));
-            @SuppressLint("Range") int height = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.HEIGHT));
+            @SuppressLint("Range") double weight = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.WEIGHT));
+            @SuppressLint("Range") double height = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.HEIGHT));
             @SuppressLint("Range") int age = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.AGE));
+            @SuppressLint("Range") String gender = cursor.getString(cursor.getColumnIndex(DatabaseHelper.GENDER));
 
-            userInfo = new UserInfo(id, name, weight, height, age);
+            userInfo = new UserInfo(id, name, weight, height, age, gender);
         }
 
         if (cursor != null) {
@@ -152,9 +154,9 @@ public class DBManager {
             @SuppressLint("Range") int id = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.ID));
             @SuppressLint("Range") int timestamp = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.TIMESTAMP));
             @SuppressLint("Range") int stepsValue = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.STEPS_VALUE));
-            @SuppressLint("Range") int bmiValue = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.BMI_VALUE));
-            @SuppressLint("Range") int distanceValue = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.DISTANCE_VALUE));
-            @SuppressLint("Range") int caloriesValue = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.CALORIES_BURNED_VALUE));
+            @SuppressLint("Range") double bmiValue = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.BMI_VALUE));
+            @SuppressLint("Range") double distanceValue = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.DISTANCE_VALUE));
+            @SuppressLint("Range") double caloriesValue = cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.CALORIES_BURNED_VALUE));
             @SuppressLint("Range") String taskIdsString = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ACTIVITY_TASK_IDS));
             String[] taskIds = taskIdsString.split(",");
 
@@ -176,7 +178,7 @@ public class DBManager {
                 if(taskIds[i] != ""){
                     ActivityTask activityTask = fetchActivityTaskById(Integer.parseInt(taskIds[i]));
 
-                    int value = 0;
+                    double value = 0;
                     switch ( activityTask.getActivityClass()){
                         case Unknown:
                             break;

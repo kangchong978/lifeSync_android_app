@@ -1,15 +1,15 @@
 package com.example.lifesync;
 
 public class DataPoint {
-    final private int value;
+    final private double value;
     final private String name;
 
-    public DataPoint(int value, String name) {
+    public DataPoint(double value, String name) {
         this.value = value;
         this.name = name;
     }
 
-    public int getValue() {
+    public double getValue() {
         return value;
     }
 

@@ -2,14 +2,14 @@ package com.example.lifesync;
 
 public class ActivityTask  implements  Comparable<ActivityTask>{
     private final ActivityClass activityClass;
-    private int value;
-    private int previousValue = 0;
+    private double value;
+    private double previousValue = 0;
 
-    public int getPreviousValue() {
+    public double getPreviousValue() {
         return previousValue;
     }
 
-    public void setPreviousValue(int previousValue) {
+    public void setPreviousValue(double previousValue) {
         this.previousValue = previousValue;
     }
 
@@ -35,7 +35,7 @@ public class ActivityTask  implements  Comparable<ActivityTask>{
         this.targetValue = targetValue;
     }
 
-    public int getValue() {
+    public double getValue() {
         return this.value;
     }
 
@@ -51,19 +51,20 @@ public class ActivityTask  implements  Comparable<ActivityTask>{
         this.done = done;
     }
 
-    public void setValue(int value) {
+    public void setValue(double value) {
         this.value = value;
     }
 
     public int compareTo(ActivityTask compareTask) {
 
-        int compareValue = ((ActivityTask) compareTask).getValue();
+        double compareValue = ((ActivityTask) compareTask).getValue();
 
         //ascending order
 //        return this.value - compareValue;
 
         //descending order
-        return compareValue - this.value;
+        Double result =  compareValue - this.value;
+        return result.intValue();
 
     }
 }

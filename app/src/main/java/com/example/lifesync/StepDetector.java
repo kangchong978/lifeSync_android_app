@@ -1,7 +1,9 @@
 package com.example.lifesync;
 
 public class StepDetector {
-    private static final float GRAVITY_THRESHOLD = 13.5f; // Threshold for detecting gravity (stationary)
+//    private static final float GRAVITY_THRESHOLD = 13.5f; // Threshold for detecting gravity (stationary)
+
+    private static final float GRAVITY_THRESHOLD = 0; // Threshold for detecting gravity (stationary)
     private static final int STEP_DELAY_MS = 500; // Minimum time between steps in milliseconds
     private static final int STEP_THRESHOLD = 8;   // Threshold for step detection
 

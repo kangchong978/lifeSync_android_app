@@ -96,12 +96,39 @@ public class StepCountService extends Service {
 
             if (steps < newSteps) {
 
+                DBManager dbManager = new DBManager(getApplicationContext());
+                dbManager.open();
+                UserInfo userInfo = dbManager.fetchUserInfo();
+
                 steps = newSteps;
                 double stepLengthMeters = 0.7; // Example average step length in meters
                 double distance = steps * stepLengthMeters;
+                double calories = 0;
+                double bmi = 0;
+
+                // Calories (Harris-Benedict Equation)
+                // For Men: BMR = (88.362 + (13.397 x weight in kg) + (4.799 x height in cm) – (5.677 x age in years))
+                // For Women: BMR = (447.593 + (9.247 x weight in kg) + (3.098 x height in cm) – (4.33 x age in years))
+                // To maintain heights & weights need to get
+                if(userInfo != null){
+                    double a1 = 88.362;
+                    double a2 = 13.397;
+                    double a3 = 4.799;
+                    double a4 = 5.677;
+                    if(userInfo.gender == "Female"){
+                        a1 = 447.593;
+                        a2 = 9.247;
+                        a3 = 3.098;
+                        a4 = 4.33;
+                    }
+
+                    calories = (a1 + (a2 * userInfo.weight) + (a3 * (userInfo.height)) - (a4 * userInfo.age));
+                    bmi = userInfo.weight / Math.pow(userInfo.height / 100, 2);
+//                    Log.d("Debugger", String.format("calories： %d", calories));
+                }
                 Log.d("Debugger", String.format("Steps： %d", steps));
                 if (stepCountCallback != null) {
-                    stepCountCallback.onStepCountChanged(new SensorData(steps, 0, distance, 0));
+                    stepCountCallback.onStepCountChanged(new SensorData(steps, bmi, distance, calories));
                 }
 
 
@@ -117,6 +144,7 @@ public class StepCountService extends Service {
     public SensorData getSensorData() {
         double stepLengthMeters = 0.7; // Example average step length in meters
         double distance = steps * stepLengthMeters;
+
         return new SensorData(steps, 0, distance, 0);
     }
 

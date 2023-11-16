@@ -30,10 +30,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String USER_INFO_TABLE_NAME = "USER_INFO";
 
 
-    public static final String NAME ="name";
-    public static final String HEIGHT ="height";
-    public static final String WEIGHT ="weight";
-    public static final String AGE ="age";
+    public static final String NAME = "name";
+    public static final String HEIGHT = "height";
+    public static final String WEIGHT = "weight";
+
+    public static final String AGE = "age";
+    public static final String GENDER = "gender";
 
 
     // Database Information
@@ -54,7 +56,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + RAW_SENSOR_VALUE + " INTEGER, "
             + STEPS_VALUE + " INTEGER, "
-            + BMI_VALUE + " INTEGER, "
+            + BMI_VALUE + " Double, "
             + DISTANCE_VALUE + " DOUBLE, "
             + CALORIES_BURNED_VALUE + " INTEGER, "
             + TIMESTAMP + " INTEGER, "
@@ -64,9 +66,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String CREATE_USER_INFO_TABLE = "CREATE TABLE " + USER_INFO_TABLE_NAME + " ("
             + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + NAME + " TEXT, "
-            + HEIGHT + " INTEGER, "
-            + WEIGHT + " INTEGER, "
-            + AGE + " INTEGER );";
+            + HEIGHT + " DOUBLE, "
+            + WEIGHT + " DOUBLE, "
+            + AGE + " INTEGER, "
+            + GENDER + " TEXT "
+            + ");";
 
     public DatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
